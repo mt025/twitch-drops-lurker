@@ -15,20 +15,34 @@ if (!fs.existsSync(cookiesPath) || !fs.existsSync(localStoragePath)) {
 const savedCookies = require(cookiesPath)
 const savedLocalStorage = require(localStoragePath)
 
-//TODO test drops with addional params to lower mem/cpu usage
-
 export let page = null
 export async function preparePage () {
   // Prepare browser
   const browser = await puppeteer.launch({
     executablePath: process.env.CHROME_EXEC_PATH,
     args: [
+	  '--proxy-server="direct://"',
+      '--proxy-bypass-list=*',
+	  '--blink-settings=imagesEnabled=false',
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-infobars',
       '--window-position=0,0',
       '--ignore-certifcate-errors',
-      '--ignore-certifcate-errors-spki-list'
+      '--ignore-certifcate-errors-spki-list',
+	  '--no-proxy-server',
+      '--disable-canvas-aa', 
+      '--disable-2d-canvas-clip-aa',
+      '--disable-gl-drawing-for-tests',
+      '--disable-dev-shm-usage', 
+      '--no-zygote', 
+      '--use-gl=swiftshader', 
+      '--enable-webgl',
+      '--hide-scrollbars',
+      '--mute-audio',
+      '--no-first-run',
+      '--disable-infobars',
+      '--disable-breakpad'
     ],
     headless: true,
     dumpio: false,
