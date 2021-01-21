@@ -33,7 +33,12 @@ async function goToRandomLiveStreamer () {
 
   await waitAsync(2000)
   // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
-  await emulateClickAsync('[data-a-target="player-overlay-click-handler"]')
+  try{
+	await emulateClickAsync('[data-a-target="player-overlay-click-handler"]')
+  }catch (e){
+	  console.log("failed to click");
+	  
+  }
 }
 
 async function isPageOnValidStreamer () {
