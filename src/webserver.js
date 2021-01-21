@@ -27,32 +27,39 @@ app.post('/kill', (req, res) => {
 })
 app.get('/', (req, res) => {
   const html = `
-    <title>twitch-drops-lurker Monitoring</title>
-    <style>
-    body, html {
-      margin: 0;
-    }
-    #statusLog {
-      display: inline-block;
-      margin: 0;
-      max-height: 720px;
-      overflow: auto;
-      vertical-align: top;
-      background: lightyellow;
-    }
-    #killButton {
-      display: block;
-      vertical-align: top;
-      background-color: #e06868;
-    }
-    </style>
-    <img id="statusImage" width="1080" height="720" />
-    <pre id="statusLog"></pre>
-    <button id="killButton">Kill twitch-drops-lurker</button>
-    <script>
-      window.env = ${JSON.stringify(process.env)}
-    </script>
-    <script type="text/javascript" src="monitor.js"></script>
+  <!DOCTYPE html>
+	<html>
+		<head>
+			<title>twitch-drops-lurker Monitoring</title>
+				<style>
+					body, html {
+						margin: 0;
+					}
+					#statusLog {
+						display: inline-block;
+						margin: 0;
+						max-height: 720px;
+						overflow: auto;
+						vertical-align: top;
+						background: lightyellow;
+					}
+					#killButton {
+						display: block;
+						vertical-align: top;
+						background-color: #e06868;
+					}
+			</style>
+		</head>
+		<body>
+			<img id="statusImage" width="1080" height="720" />
+			<pre id="statusLog"></pre>
+			<button id="killButton">Kill twitch-drops-lurker</button>
+			<script>
+				window.env = ${JSON.stringify(process.env)}
+			</script>
+			<script type="text/javascript" src="monitor.js"></script>
+		</body>
+	</html>
   `
   res.status(200).send(html)
 })
