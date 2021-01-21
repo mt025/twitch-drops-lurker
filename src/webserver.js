@@ -35,6 +35,8 @@ app.get('/', (req, res) => {
 					body, html {
 						margin: 0;
 					}
+					
+					
 					#statusLog {
 						display: inline-block;
 						margin: 0;
@@ -42,11 +44,24 @@ app.get('/', (req, res) => {
 						overflow: auto;
 						vertical-align: top;
 						background: lightyellow;
+						border: 1px solid grey;
+						margin-top: 20px;
+						-webkit-box-shadow: 5px 5px 11px 5px rgba(0,0,0,0.7);
+						box-shadow: 5px 5px 11px 5px rgba(0,0,0,0.7);
 					}
+					
+					
 					#killButton {
 						display: block;
 						vertical-align: top;
 						background-color: #e06868;
+					}
+					
+					#statusImage {
+						border: 1px solid grey;
+						margin: 20px 20px 50px 30px;
+						-webkit-box-shadow: 5px 5px 11px 5px rgba(0,0,0,0.7);
+						box-shadow: 5px 5px 11px 5px rgba(0,0,0,0.7);
 					}
 			</style>
 		</head>

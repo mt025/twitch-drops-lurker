@@ -45,7 +45,7 @@ async function goToRandomLiveStreamer () {
 async function isPageOnValidStreamer () {
   if (!activeStreamerName) return false // We're currently navigating to a streamer, so no
 
-  const liveIndicatorElm = await page.$('.tw-accent-region .live-indicator-container')
+  const liveIndicatorElm = await page.$('.channel-info-content .live-indicator-container')
   if (!liveIndicatorElm) {
     logger.updateStatus(`⚠️ ${activeStreamerName} is no longer live`)
     return false
