@@ -15,6 +15,8 @@ if (!fs.existsSync(cookiesPath) || !fs.existsSync(localStoragePath)) {
 const savedCookies = require(cookiesPath)
 const savedLocalStorage = require(localStoragePath)
 
+//TODO test drops with addional params to lower mem/cpu usage
+
 export let page = null
 export async function preparePage () {
   // Prepare browser

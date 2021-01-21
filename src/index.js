@@ -39,12 +39,13 @@ async function goToRandomLiveStreamer () {
 async function isPageOnValidStreamer () {
   if (!activeStreamerName) return false // We're currently navigating to a streamer, so no
 
-  const liveIndicatorElm = await page.$('.live-indicator-container')
+  const liveIndicatorElm = await page.$('.tw-accent-region .live-indicator-container')
   if (!liveIndicatorElm) {
     logger.updateStatus(`⚠️ ${activeStreamerName} is no longer live`)
     return false
   }
 
+	//TODO Catch eval errors
   const gameCategoryHref = await page.$eval('[data-a-target="stream-game-link"]', elm => elm.href)
   if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${game}`) {
     logger.updateStatus(`⚠️ ${activeStreamerName} is no longer playing ${game}`)
