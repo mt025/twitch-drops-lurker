@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
 			</style>
 		</head>
 		<body>
-			<img id="statusImage" width="1080" height="720" />
+			<img id="statusImage" src="status.jpg" width="1080" height="720" />
 			<pre id="statusLog"></pre>
 			<button id="killButton">Kill twitch-drops-lurker</button>
 			<script>

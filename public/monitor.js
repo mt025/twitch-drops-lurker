@@ -9,7 +9,7 @@ updateImage()
 updateLogs()
 
 function updateImage () {
-  document.getElementById('statusImage').src = './status.jpg?t=' + Date.now()
+  document.getElementById('statusImage').src = '/status.jpg?t=' + Date.now()
 }
 
 function updateLogs () {
