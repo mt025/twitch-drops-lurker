@@ -9,17 +9,6 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 puppeteer.use(StealthPlugin());
 
-const cookiesPath = path.join(__dirname, '..', 'cookies.json');
-
-const localStoragePath = path.join(__dirname, '..', 'localStorage.json');
-
-if (!fs.existsSync(cookiesPath) || !fs.existsSync(localStoragePath)) {
-    throw new Error('cookies.json or localStorage.json not found. Please check README for installation instructions')
-}
-
-const savedCookies = require(cookiesPath);
-const savedLocalStorage = require(localStoragePath);
-
 let headless = true;
 
 if (process.argv.length > 3) {
@@ -54,12 +43,12 @@ if(headless)
 	
 }
 
-export let page = null;
+export let browser = null; 
 
 
-export async function preparePage() {
+export async function prepareBrowser() {
     // Prepare browser
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
             executablePath: process.env.CHROME_EXEC_PATH,
             args: chromeArgs,
             headless,
@@ -69,8 +58,29 @@ export async function preparePage() {
                 height: 720
             }
         });
-    page = await browser.newPage();
+   return browser;
+}
+
+export async function preparePage(name){
+
+
+
+	const cookiesPath = path.join(__dirname, '..',"userlogins", name + '_cookies.json');
+
+	const localStoragePath = path.join(__dirname, '..', "userlogins", name + '_cookies.json');
+	
+	console.log(cookiesPath);
+
+	if (!fs.existsSync(cookiesPath) || !fs.existsSync(localStoragePath)) {
+		throw new Error(name + '_cookies.json or ' + name + '_localStorage.json not found. Please check README for installation instructions')
+	}
+	const savedCookies = require(cookiesPath);
+	const savedLocalStorage = require(localStoragePath);
+	
+	let page = await browser.newPage();
+	
     await page.setUserAgent('Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.197 Safari/537.36');
+
     await page.setCookie(...savedCookies);
 
     // Setup localStorage for twitch.tv
@@ -87,4 +97,5 @@ export async function preparePage() {
     await waitAsync(500);
 
     return page;
+	
 }

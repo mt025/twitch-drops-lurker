@@ -2,13 +2,9 @@ import express from 'express';
 import logger from './logger';
 import bodyParser from 'body-parser';
 import {
-    page
+    pages
 }
-from './puppeteerPage';
-import {
-    emulateClickAsync
-}
-from './utils';
+from './index';
 
 const app = express();
 app.use(bodyParser.json());
@@ -19,11 +15,17 @@ app.get('/health', (req, res) => res.status(200).send('ok'));
 app.get('/logs', (req, res) => res.status(200).json(logger.statuses));
 
 app.post('/mouseClick', (req, res) => {
+	try{
     const posX = parseInt(req.body.x) || 0;
     const posY = parseInt(req.body.y) || 0;
     res.status(200).send('ok');
-    logger.updateStatus(`🐭 Mouse click request received for ${posX},${posY}`);
     page.mouse.move(posX, posY).then(() => emulateClickAsync()).catch(() => {});
+	logger.updateStatus(`🐭 Mouse click request received for ${posX},${posY}`);
+	}
+	catch (e){
+		logger.updateStatus(`❗ Failed to send mouse click ${e.message}`);
+		
+	}
 });
 
 app.post('/kill', (req, res) => {

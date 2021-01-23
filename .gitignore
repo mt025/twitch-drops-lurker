@@ -1,6 +1,5 @@
 node_modules
 status.jpg
-cookies.json
-localStorage.json
+*cookies.json
+*localStorage.json
 .env
-puppeteer_tmp
