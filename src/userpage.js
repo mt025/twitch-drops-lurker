@@ -1,12 +1,24 @@
+import path from 'path';
 export class UserPage {
-    constructor(name, type) {
+
+    constructor(name, account, type, streamers) {
         this.page = null;
         this.name = name;
-        this.cookies = null;
-        this.storage = null;
         this.type = type;
+        this.account = account;
+        this.streamers = streamers;
+        this.currentStreamer = null;
+        this.currentTime = 0;
+        this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b'
+            this.loadCookiesStoragePath();
     }
 
+    loadCookiesStoragePath() {
+        this.cookies = path.join(__dirname, '..', "userlogins", this.account + '_cookies.json');
+        this.storage = path.join(__dirname, '..', "userlogins", this.account + '_localStorage.json');
+    }
+	
+	
     async emulateClickAsync(selector) {
         if (selector) {
             await this.page.click(selector, {
@@ -53,7 +65,7 @@ export class UserPage {
         }
     }
 
-   async isPageOnValidStreamer() {
+    async isPageOnValidStreamer() {
         if (!activeStreamerName)
             return false // We're currently navigating to a streamer, so no
 
