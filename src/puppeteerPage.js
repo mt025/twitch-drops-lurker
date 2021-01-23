@@ -1,6 +1,5 @@
 import puppeteer from 'puppeteer-extra';
 import fs from 'fs';
-import path from 'path';
 import { waitAsync } from './utils';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { settings } from './index'
@@ -30,7 +29,9 @@ const chromeArgs = [
     '--hide-scrollbars', //Hide scrollbars from screenshots
     '--mute-audio', //Mutes device audio
     '--no-first-run', //Disables first run tasks - TODO: TEST
-    '--disable-breakpad' //Disables the crash reporting
+    '--disable-breakpad', //Disables the crash reporting,
+	'--disable-background-media-suspend', //Keep media running in background tabs
+	"--process-per-tab" //Keep all tabs active
 ];
 
 if (headless) {
@@ -43,7 +44,9 @@ export let browser = null;
 export async function prepareBrowser() {
     // Prepare browser
     browser = await puppeteer.launch({
-            executablePath: settings.CHROME_EXEC_PATH,
+            //TOFIX
+			//executablePath: settings.CHROME_EXEC_PATH,
+			executablePath: "/usr/bin/chromium-browser",
             args: chromeArgs,
             headless,
             dumpio: false,
@@ -55,32 +58,32 @@ export async function prepareBrowser() {
     return browser;
 }
 
-export async function preparePage(userpage) {
+export async function preparePage(idler) {
 
-    if (!fs.existsSync(userpage.cookies) || !fs.existsSync(userpage.storage)) {
-        throw new Error(userpage.account + '_cookies.json or ' + userpage.account + '_localStorage.json not found. Please check README for installation instructions')
+    if (!fs.existsSync(idler.cookies) || !fs.existsSync(idler.storage)) {
+        throw new Error(idler.account + '_cookies.json or ' + idler.account + '_localStorage.json not found. Please check README for installation instructions')
     }
-    const savedCookies = require(userpage.cookies);
-    const savedLocalStorage = require(userpage.storage);
+    const savedCookies = require(idler.cookies);
+    const savedLocalStorage = require(idler.storage);
 	
 	//Setup page
-    userpage.page = await browser.newPage();
-    await userpage.page.setUserAgent('Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.197 Safari/537.36');
+    idler.page = await browser.newPage();
+    await idler.page.setUserAgent('Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.197 Safari/537.36');
 
 	//Setup cookies
     try {
-        await userpage.page.setCookie(...savedCookies);
+        await idler.page.setCookie(...savedCookies);
     } catch (e) {
         throw new Error("Failed to set cookies");
     }
 
     
-    await userpage.page.goto('https://twitch.tv/');
+    await idler.page.goto('https://twitch.tv/');
     await waitAsync(100);
 
 	// Setup localStorage for twitch.tv
     try {
-        await userpage.page.evaluate((_savedLocalStorage) => {
+        await idler.page.evaluate((_savedLocalStorage) => {
             JSON.parse(_savedLocalStorage).forEach(([key, value]) => {
                 window.localStorage.setItem(key, value)
             });
@@ -98,6 +101,6 @@ export async function preparePage(userpage) {
 	
     await waitAsync(500);
 
-    return userpage.page;
+    return idler.page;
 
 }

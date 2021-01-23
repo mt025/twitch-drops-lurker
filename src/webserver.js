@@ -1,7 +1,7 @@
 import express from 'express';
-import logger from './logger';
+import path from 'path';
 import bodyParser from 'body-parser';
-import {    pages,    getPageByName, settings} from './index';
+import {    idlers,    getIdlersByName, settings} from './index';
 
 const app = express();
 app.use(bodyParser.json());
@@ -9,11 +9,10 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/health', (req, res) => res.status(200).send('ok'));
-app.get('/logs', (req, res) => res.status(200).json(logger.statuses));
 
-app.get('/pages', function (req, res) {
+app.get('/idlers', function (req, res) {
 	res.set('Content-Type', 'application/json')
-    res.send(JSON.stringify(pages, function replacer(key, value) {
+    res.send(JSON.stringify(idlers, function replacer(key, value) {
             if (key == 'page') {
                 return undefined
             };
@@ -30,26 +29,37 @@ app.post('/mouseClick', (req, res) => {
     try {
         const posX = parseInt(req.body.x) || 0;
         const posY = parseInt(req.body.y) || 0;
+		const name = req.body.name;
         res.status(200).send('ok');
-        page.mouse.move(posX, posY).then(() => emulateClickAsync()).catch(() => {});
-        logger.updateStatus(`🐭 Mouse click request received for ${posX},${posY}`);
+		var idler = getIdlersByName(name);
+		
+        idler.clickXY(posX,posY);
+       
     } catch (e) {
-        logger.updateStatus(`❗ Failed to send mouse click ${e.message}`);
 
     }
 });
 
 app.post('/kill', (req, res) => {
     res.status(200).send('ok');
-    logger.updateStatus('Kill request received. Note that you\'ll need something like pm2 to recover the process. If using vanilla node, it will just end');
     process.kill(process.pid, 'SIGINT');
 });
+
+app.get('/logs/:username', async function (req, res) {
+
+    try {
+        var idler = getIdlersByName(req.params.username);
+		res.json(idler.logs);
+    } catch (e) {
+        res.status(500).send();
+    }
+})
 
 app.get('/screenshot/:username', async function (req, res) {
 
     try {
-        var userpage = getPageByName(req.params.username);
-        await userpage.page.screenshot({
+        var idler = getIdlersByName(req.params.username);
+        await idler.page.screenshot({
             path: './public/status.jpg'
         })
         res.sendFile(path.join(__dirname, '..', 'public', 'status.jpg'));
@@ -58,6 +68,7 @@ app.get('/screenshot/:username', async function (req, res) {
         console.error("Unable to take screenshot for " + req.params.username + " - " + e.message);
     }
 })
+
 
 let port = 5000;
 try {
