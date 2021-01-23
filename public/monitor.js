@@ -3,7 +3,7 @@
 setInterval(() => {
   updateImage()
   updateLogs()
-}, Math.min(window.env.SCREENSHOT_INTERVAL * 1000, 5000))
+}, 5000)
 
 updateImage()
 updateLogs()
