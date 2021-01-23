@@ -18,6 +18,8 @@ export const idlers = [];
 idlers.push(new Idler("rust", "magictree", "new", "Rust", true, ["https://www.twitch.tv/Rubius", "https://www.twitch.tv/juansguarnizo", "https://www.twitch.tv/Mizkif"]));
 idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
 
+
+//TODO - Not exporting to puppeteerpage for some reason?!
 export const settings = {
     CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
     SCREENSHOT_INTERVAL: 5
@@ -63,13 +65,15 @@ async function main() {
 
             //Refresh
             setInterval(async() => {
-                //Check if stream is still valid
+                 // Watch for live status, and go to another streamer if needed
                 if (!(await idler.isPageOnValidStreamer())) {
-                    await idler.goToLiveStreamer()
+                    await idler.goToLiveStreamer();
                 }
-				
-				if(idler.currentStreamer == null) return;
-				
+
+				// Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
+                if (idler.currentStreamer == null)
+                    return;
+
                 const msElapsed = Date.now() - idler.currentTime;
                 if (msElapsed < 1000 * 60 * 60) {
                     return;
@@ -86,14 +90,5 @@ async function main() {
     });
 
     keepIdlersAlive();
-
-    // Go watch a streamer
-    //await goToRandomLiveStreamer()
-
-    // Watch for live status, and go to another streamer if needed
-
-
-    // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
-
 
 }

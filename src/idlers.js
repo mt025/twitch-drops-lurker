@@ -52,7 +52,7 @@ export class Idler {
         }
         await this.page.mouse.move(x, y);
         await this.emulateClickAsync();
-        logger.updateStatus(`🐭 Mouse click request received for ${posX},${posY}`);
+        this.updateStatus(`🐭 Mouse click request received for ${posX},${posY}`);
     }
 
     async emulateClickAsync(selector) {
