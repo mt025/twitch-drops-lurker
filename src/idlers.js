@@ -130,7 +130,7 @@ export class Idler {
         if (!this.currentStreamer)
             return false // We're currently navigating to a streamer, so no
 
-            const liveIndicatorElm = await this.page.$('.channel-info-content .live-indicator-container')
+            const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container')
                 if (!liveIndicatorElm) {
                     this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`)
                     return false
