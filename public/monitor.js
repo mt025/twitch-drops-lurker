@@ -1,9 +1,11 @@
 /* eslint-env browser */
 
+const interval = parseInt(findGetParameter("interval"));
+
 setInterval(() => {
   updateImage()
   updateLogs()
-}, 5000)
+}, (isNaN(interval) ? 5 : interval) * 1000)
 
 updateImage()
 updateLogs()
@@ -40,3 +42,17 @@ document.getElementById('killButton').addEventListener('click', () => {
     setTimeout(window.location.reload, 2000)
   }).catch(err => alert(err.message))
 })
+
+//Get param from query string - https://stackoverflow.com/questions/5448545/how-to-retrieve-get-parameters-from-javascript/
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tmp = item.split("=");
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+        });
+    return result;
+}

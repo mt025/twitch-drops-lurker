@@ -34,16 +34,8 @@ app.post('/kill', (req, res) => {
 
 
 app.get('/', function (req, res) {
-  res.send('index.html')
+  res.redirect('/main.html?interval=' + process.env.SCREENSHOT_INTERVAL)
 })
-
-
-//app.get('/', (req, res) => {
-//    const html = `
-// 
-//  `;
-//    res.status(200).send(html);
-//});
 
 let port = 5000;
 try {

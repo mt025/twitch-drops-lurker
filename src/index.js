@@ -89,12 +89,22 @@ async function main () {
 
   // Move mouse to random location every 10 sec. Does this do anything? Probably not
   setInterval(async () => {
+	  try{
     const randomScreenPos = (max) => Math.floor(Math.random() * max)
     await page.mouse.move(randomScreenPos(1080), randomScreenPos(720))
+	  }catch (e){
+		  console.error("Unable to move mouse");
+		  
+	  }
   }, 1000 * 10)
 
-  // For debugging, take a pic every other second
+  // For debugging, take a pic at screenshot interval
   setInterval(() => {
-    page.screenshot({ path: './public/status.jpg' })
+   try{ page.screenshot({ path: './public/status.jpg' })
+   }
+   catch (e){
+	   console.error("Unable to take screenshot");
+	   
+   }
   }, process.env.SCREENSHOT_INTERVAL * 1000)
 }
