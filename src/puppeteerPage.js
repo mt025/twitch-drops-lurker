@@ -16,6 +16,13 @@ const savedCookies = require(cookiesPath)
 const savedLocalStorage = require(localStoragePath)
 
 export let page = null
+
+let headless = true;
+
+if (process.argv.length > 3) {
+	headless = !(process.argv[3].toLowerCase() === "false");
+}
+
 export async function preparePage () {
   // Prepare browser
   const browser = await puppeteer.launch({
@@ -44,7 +51,7 @@ export async function preparePage () {
       '--disable-infobars',
       '--disable-breakpad'
     ],
-    headless: true,
+    headless,
     dumpio: false,
     defaultViewport: {
       width: 1080,
