@@ -30,7 +30,7 @@ export class Idler {
 
     updateStatus(status) {
         status = new Date().toLocaleString() + ": " + status;
-        console.debug(status)
+        console.debug(this.name+ " - "+status)
         this.logs.unshift(status)
         if (this.logs.length > 100)
             this.logs.pop()
@@ -115,8 +115,9 @@ export class Idler {
         await waitAsync(2000);
 
         // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
+	//TODO look into this
         try {
-            await emulateClickAsync('[data-a-target="player-overlay-click-handler"]');
+            await this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]');
         } catch (e) {
             console.log("failed to click");
 
@@ -139,10 +140,11 @@ export class Idler {
                 //TODO Catch eval errors
                 const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href)
                 if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-                    this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${game}`)
+                    this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`)
                     return false
                 }
 
+		//TODO - Write a type for legacy -> check for other html elements that show drops enabled / add type none
                 if (this.type != "legacy") {
                     const dropsActivatedCategory = await this.page.$('[data-a-target="Drops Enabled"]')
                         if (!dropsActivatedCategory) {
