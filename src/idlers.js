@@ -21,6 +21,8 @@ export class Idler {
         this.logs = [];
         this.autostart = autostart;
         this.currentIndex = 0;
+		this.logindex = 0;
+		this.Navigating = false;
     }
 
     loadCookiesStoragePath() {
@@ -29,11 +31,13 @@ export class Idler {
     }
 
     updateStatus(status) {
-        status = new Date().toLocaleString() + ": " + status;
+		let date = new Date();
+        status = date.getHours() + ":" + date.getMinutes() + ": " + status;
         console.debug(this.name + " - " + status);
-        this.logs.unshift(status)
+        this.logs.push({index: this.logindex++, status});
+		
         if (this.logs.length > 100)
-            this.logs.pop()
+            this.logs.shift()
     }
 
     async keepAlive() {
@@ -74,7 +78,7 @@ export class Idler {
         if (this.page == null) {
             return
         }
-
+		this.Navigating = true;
         this.updateStatus('🔍 Looking for a streamer to watch');
         this.currentStreamer = null;
         this.streamerLink = null;
@@ -113,6 +117,7 @@ export class Idler {
 
         this.updateStatus(`✨ Started watching ${this.currentStreamer}`);
         await waitAsync(2000);
+		
 
         // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
         //TODO look into this
@@ -122,6 +127,7 @@ export class Idler {
             console.log("failed to click");
 
         }
+		this.Navigating = false;
     }
 
     async isPageOnValidStreamer() {

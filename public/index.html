@@ -21,7 +21,6 @@
 							<h1> Welcome </h1>
 							<p> Welcome to twitch-drops-lurker.</p>
 							<p><button id="killButton">Kill twitch-drops-lurker</button></p>
-							<p><button id="addAccount">Add/Edit Account</button></p>
 							<p><button id="addIdler">Add/Edit Idler</button></p>
 							
 						</div>
@@ -33,8 +32,34 @@
 			<script src="main.js"></script>
 			
 			<template id='idlerContent'> 
-					<img class="statusImage" width="1080" height="720" />
-					<pre class="statusLog"></pre>
+			
+			<div class="statusImageWrap">
+						<div class="statusInfo">
+							<div class='info-bot badge bg-success'>🤖 <span class='data'>...</span></div>
+							<div class='info-account badge bg-success'>📒 <span class='data'>...</span></div>
+							<div class='info-game badge bg-success'>🎮 <span class='data'>...</span></div>
+							<div class='info-streamer badge bg-success'>📺 <a target="_blank" class='data'>...</a></div>
+							<div class='info-type badge bg-success'>🔌 <span class='data'>...</span></div>
+							<div class='info-time badge bg-success'>🕒 <span class='data'>...</span></div>
+						</div>
+						<hr/>
+					<h2 class='holdingImage' class="text-center"> Loading screenshot..... </h2>
+					<img style="display:none" class="statusImage"/>
+			</div>
+					<div class="statusInfoWrap">
+						<div class="settings">
+						<button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
+						<button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
+						<button type="button" class="btn btn-danger btn-sm edit-idler">Edit Idler</button>
+						<div class='interval'>
+						Refresh Every (Seconds):
+						<input class="interval-spinner" type='number' min='0' max='999' class="form-control">
+						</div>
+						</div>
+						<hr/>
+						<h2 class='holdingLogs' class="text-center"> Loading logs ..... </h2>
+						<div class="statusLog" data-index="0"></div>
+					</div>
 			</template>
 		</body>
 	</html>

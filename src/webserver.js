@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 import {    idlers,    getIdlersByName, settings} from './index';
+import fs from 'fs';
 
 const app = express();
 app.use(bodyParser.json());
@@ -27,12 +28,11 @@ app.get('/settings', function (req, res) {
 
 app.post('/mouseClick', (req, res) => {
     try {
-        const posX = parseInt(req.body.x) || 0;
-        const posY = parseInt(req.body.y) || 0;
+        const posX = parseInt(req.body.x);
+        const posY = parseInt(req.body.y);
 		const name = req.body.name;
         res.status(200).send('ok');
 		let idler = getIdlersByName(name);
-		
         idler.clickXY(posX,posY);
        
     } catch (e) {
@@ -45,9 +45,12 @@ app.post('/kill', (req, res) => {
     process.kill(process.pid, 'SIGINT');
 });
 
-app.post('/nextstreamer/:username', (req, res) => {
+app.post('/:username/nextstreamer', (req, res) => {
     try {
         let idler = getIdlersByName(req.params.username);
+		if(idler.Navigating){
+			throw "";
+		}
 		idler.goToLiveStreamer();
 		res.status(200).send('ok');
 		
@@ -56,7 +59,7 @@ app.post('/nextstreamer/:username', (req, res) => {
     }
 });
 
-app.get('/logs/:username', async function (req, res) {
+app.get('/:username/logs', async function (req, res) {
 
     try {
         let idler = getIdlersByName(req.params.username);
@@ -72,14 +75,17 @@ app.get('/logs/:username', async function (req, res) {
     }
 })
 
-app.get('/screenshot/:username', async function (req, res) {
+app.get('/:username/screenshot', async function (req, res) {
 
     try {
         let idler = getIdlersByName(req.params.username);
         await idler.page.screenshot({
             path: './public/status.jpg'
-        })
-        res.sendFile(path.join(__dirname, '..', 'public', 'status.jpg'));
+        });
+		res.type('text');
+		let data = fs.readFileSync(path.join(__dirname, '..', 'public', 'status.jpg'))
+        res.send(data.toString('base64'));
+		
     } catch (e) {
         res.status(500).send(e);
         console.error("Unable to take screenshot for " + req.params.username + " - " + e.message);

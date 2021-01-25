@@ -15,13 +15,15 @@ from './utils'
 import fs from 'fs';
 
 export const idlers = [];
-idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
+//idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
+idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
 
 
 //TODO - Not exporting to puppeteerpage for some reason?!
 export const settings = {
     CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
-    SCREENSHOT_INTERVAL: 5
+	VIEWPORT_WIDTH: 1080,
+	VIEWPORT_HEIGHT: 720
 }
 
 //Get the idler object by name
@@ -42,6 +44,7 @@ async function keepIdlersAlive() {
             } catch (e) {}
             await waitAsync(10000);
         }
+		await waitAsync(1000);
     }
 
 }

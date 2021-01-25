@@ -1,7 +1,11 @@
 body{
-	margin:3rem;	
+	margin:1rem;	
 }
-
+.container-fluid{
+	margin:0;
+	padding:0;
+	
+}
 .nav-link{
 	border: 1px solid #ddd;
 	padding:.25rem .5rem;
@@ -11,14 +15,93 @@ body{
 	white-space:nowrap;
 }
 
-.statusImage {
+.statusInfoWrap{
+	display:inline-block;
+	border: 1px solid #ddd;
+	max-width:40%;
+	min-width:500px;
+}
+
+.statusImageWrap {
 	border: 1px solid #ddd;
 	vertical-align: top;
-	display:inline-block
+	display:inline-block;
+	margin-bottom:10px;
+	width:59%;
+	
+}
+hr{
+	margin:0;
 	
 }
 
-pre.statusLog{
-	display:inline-block;
+.statusImage {
+	width:100%;
 }
 
+.holdingImage{
+	text-align:center;
+	margin:360px 0px;
+}
+
+.statusInfo{
+	width:100%;
+	text-align:center;
+	min-height:3rem;
+	padding-top:0.75rem;
+}
+
+
+.statusInfo div{
+	text-overflow: ellipsis;
+	overflow:hidden;
+	font-size:.9em;
+}
+
+.statusInfo div a {
+	text-decoration: none;
+	color: var(--bs-cyan);
+	
+}
+
+.statusLog p{
+	font-size:0.8rem;
+}
+.statusLog{
+	width:100%;
+	padding-left:1rem;
+	padding-right:1rem;
+	padding-top:1rem;
+	min-height:500px;
+}
+
+
+#v-pills-tabContent{
+	width:100%;
+}
+
+
+.settings{
+	min-height:3rem;
+	padding:0.5rem;
+	
+}
+
+.settings button{
+	font-size:0.75rem;
+}
+
+
+.settings input[type='number']{
+		text-align:center;
+	font-size: 0.75rem;
+	width: 60px;
+	display: inline-block;
+	padding: 0.26rem 0rem;
+}
+
+.interval{
+	font-size: 0.75rem;
+	float:right;
+	
+}
