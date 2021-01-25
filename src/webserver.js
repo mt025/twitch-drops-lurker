@@ -31,7 +31,7 @@ app.post('/mouseClick', (req, res) => {
         const posY = parseInt(req.body.y) || 0;
 		const name = req.body.name;
         res.status(200).send('ok');
-		var idler = getIdlersByName(name);
+		let idler = getIdlersByName(name);
 		
         idler.clickXY(posX,posY);
        
@@ -45,11 +45,28 @@ app.post('/kill', (req, res) => {
     process.kill(process.pid, 'SIGINT');
 });
 
+app.post('/nextstreamer/:username', (req, res) => {
+    try {
+        let idler = getIdlersByName(req.params.username);
+		idler.goToLiveStreamer();
+		res.status(200).send('ok');
+		
+    } catch (e) {
+        res.status(500).send();
+    }
+});
+
 app.get('/logs/:username', async function (req, res) {
 
     try {
-        var idler = getIdlersByName(req.params.username);
-		res.json(idler.logs);
+        let idler = getIdlersByName(req.params.username);
+		res.send(JSON.stringify(idler, function replacer(key, value) {
+            if (key == 'page') {
+                return undefined
+            };
+            return value;
+        }));		
+		
     } catch (e) {
         res.status(500).send();
     }
@@ -58,13 +75,13 @@ app.get('/logs/:username', async function (req, res) {
 app.get('/screenshot/:username', async function (req, res) {
 
     try {
-        var idler = getIdlersByName(req.params.username);
+        let idler = getIdlersByName(req.params.username);
         await idler.page.screenshot({
             path: './public/status.jpg'
         })
         res.sendFile(path.join(__dirname, '..', 'public', 'status.jpg'));
     } catch (e) {
-        res.status(500).send();
+        res.status(500).send(e);
         console.error("Unable to take screenshot for " + req.params.username + " - " + e.message);
     }
 })

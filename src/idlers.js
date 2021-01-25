@@ -14,7 +14,7 @@ export class Idler {
         this.game = game;
         this.streamerList = streamerList;
         this.currentStreamer = null;
-        this.currentTime = 0;
+        this.startTime = 0;
         this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b';
         this.loadCookiesStoragePath();
         this.streamerLink = null;
@@ -30,7 +30,7 @@ export class Idler {
 
     updateStatus(status) {
         status = new Date().toLocaleString() + ": " + status;
-        console.debug(this.name+ " - "+status)
+        console.debug(this.name + " - " + status);
         this.logs.unshift(status)
         if (this.logs.length > 100)
             this.logs.pop()
@@ -78,7 +78,7 @@ export class Idler {
         this.updateStatus('🔍 Looking for a streamer to watch');
         this.currentStreamer = null;
         this.streamerLink = null;
-        this.currentTime = 0;
+        this.startTime = 0;
 
         //We are using a search term, rather than a list
         if (!this.streamerList) {
@@ -107,7 +107,7 @@ export class Idler {
         }
 
         this.currentStreamer = this.streamerLink.split('/').pop();
-        this.currentTime = Date.now();
+        this.startTime = Date.now();
 
         await this.page.goto(this.streamerLink);
 
@@ -115,7 +115,7 @@ export class Idler {
         await waitAsync(2000);
 
         // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
-	//TODO look into this
+        //TODO look into this
         try {
             await this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]');
         } catch (e) {
@@ -126,33 +126,40 @@ export class Idler {
 
     async isPageOnValidStreamer() {
         if (this.page == null) {
-            return
+            return;
         }
         if (!this.currentStreamer)
-            return false // We're currently navigating to a streamer, so no
+            return false; // We're currently navigating to a streamer, so no
 
-            const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container')
-                if (!liveIndicatorElm) {
-                    this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`)
-                    return false
-                }
+        const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container');
+        if (!liveIndicatorElm) {
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`);
+            return false;
+        }
 
-                //TODO Catch eval errors
-                const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href)
-                if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-                    this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`)
-                    return false
-                }
+        //TODO Catch eval errors
+        const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
+        if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`);
+            return false;
+        }
 
-		//TODO - Write a type for legacy -> check for other html elements that show drops enabled / add type none
-                if (this.type != "legacy") {
-                    const dropsActivatedCategory = await this.page.$('[data-a-target="Drops Enabled"]')
-                        if (!dropsActivatedCategory) {
-                            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`)
-                            return false
-                        }
-                }
-                return true
+        let dropsEnabled = true;
+
+        if (this.type == "new") {
+            dropsEnabled = !!await this.page.$('[data-a-target="Drops Enabled"]');
+
+        } else if (this.type == "legacy") {
+            dropsEnabled = !!await this.page.$('[data-test-selector="drops-campaign-details"] .drops-campaign-details__drops-success');
+
+        }
+
+        if (!dropsEnabled) {
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`);
+            return false
+        }
+
+        return true
     }
 
 }

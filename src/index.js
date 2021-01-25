@@ -15,7 +15,6 @@ from './utils'
 import fs from 'fs';
 
 export const idlers = [];
-idlers.push(new Idler("rust", "magictree", "new", "Rust", true, ["https://www.twitch.tv/Rubius", "https://www.twitch.tv/juansguarnizo", "https://www.twitch.tv/Mizkif"]));
 idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
 
 
@@ -74,7 +73,7 @@ async function main() {
                 if (idler.currentStreamer == null)
                     return;
 
-                const msElapsed = Date.now() - idler.currentTime;
+                const msElapsed = Date.now() - idler.startTime;
                 if (msElapsed < 1000 * 60 * 60) {
                     return;
                 }
