@@ -1,5 +1,10 @@
 # twitch-drops-lurker
 
+## Info
+This is a "work in progress" fork of NiciusB/twitch-drops-lurker. 
+
+![Screenshot showing twitch drops lurker](screenshot.png)
+
 ## Installation
 
 1. Clone the repository to your device with `git clone https://github.com/mt025/twitch-drops-lurker.git`
