@@ -4,7 +4,7 @@ let width = 720;
 let imageLoadFinished = true;
 
 let logIntervalTime = 1000;
-let imageIntervalTime = 5000;
+let imageIntervalTime = localStorage.getItem("imageIntervalTime") ? parseInt(localStorage.getItem("imageIntervalTime")) : 5000;
 
 let logsInterval = setInterval(updateLogs, logIntervalTime);
 let imageInterval = setInterval(updateImage, imageIntervalTime);
@@ -98,6 +98,7 @@ function updateRate(e) {
     imageIntervalTime = (60 / parseInt(e.target.value)) * 1000;
     clearInterval(imageInterval);
     imageInterval = setInterval(updateImage, imageIntervalTime);
+	localStorage.setItem("imageIntervalTime", imageIntervalTime);
 }
 
 async function updateLogs() {
@@ -143,8 +144,8 @@ async function updateImage() {
     if (!name) {
         return;
     }
-	
-	//Make sure the last image has loaded so we don't flood the server
+
+    //Make sure the last image has loaded so we don't flood the server
     if (imageLoadFinished) {
         imageLoadFinished = false;
         fetch(name + '/screenshot').then(res => res.text()).then(res => {
@@ -155,7 +156,7 @@ async function updateImage() {
             page.querySelector(".statusImage").setAttribute("src", 'data:image/jpg;base64,' + res);
             imageLoadFinished = true;
         }).catch((e) => {
-			imageLoadFinished = true;
+            imageLoadFinished = true;
             console.log("Failed to get image: " + e.message);
         });
     }
@@ -178,11 +179,16 @@ function sendMouseClick(x, y, name) {
 }
 
 document.getElementById('killButton').addEventListener('click', () => {
-    //fetch('kill', {
-    //    method: 'POST'
-    //}).then(() => {
-    //    setTimeout(window.location.reload, 2000)
-    //}).catch(err => alert(err.message))
+
+    var exit = confirm("Are you sure you want to stop the twitch-drops-lurker process?");
+
+    if (exit) {
+        fetch('kill', {
+            method: 'POST'
+        }).then(() => {
+            setTimeout(window.location.reload, 2000)
+        }).catch(err => alert(err.message))
+    }
 })
 
 //get all idlers
