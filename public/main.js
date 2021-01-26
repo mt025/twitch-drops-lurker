@@ -1,8 +1,6 @@
 let height = 1080;
 let width = 720;
 let interval = 5;
-let timeoutLogs = null;
-let timeoutImage = null;
 
 let selectedIdler = "";
 let selectedIdlerButton = null;
@@ -12,7 +10,7 @@ function createNewTab(idler) {
     var name = idler.name;
 
     // create the tab
-    document.querySelector('#v-pills-tab').insertAdjacentHTML('beforeend', '<a class="nav-link" data-name="' + name + '" id="v-pills-' + name + '-tab" data-bs-toggle="pill" href="#v-pills-' + name + '" role="tab" aria-controls="v-pills-' + name + '" aria-selected="true">Idler: ' + name + '</a>')
+    document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', '<a class="nav-link" data-name="' + name + '" id="v-pills-' + name + '-tab" data-bs-toggle="pill" href="#v-pills-' + name + '" role="tab" aria-controls="v-pills-' + name + '" aria-selected="true">Idler: ' + name + '</a>')
 
     // create the tab content
     document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', '<div class="tab-pane fade" data-name="' + name + '" id="v-pills-' + name + '" role="tabpanel" aria-labelledby="v-pills-' + name + '-tab"></div>')
@@ -25,11 +23,10 @@ function createNewTab(idler) {
     var tabEl = document.querySelector('#v-pills-' + name + '-tab');
 
     tabEl.addEventListener('shown.bs.tab', function (event) {
-		selectedIdler = name;
+        selectedIdler = name;
         selectedIdlerButton = tabEl;
         selectedIdlerPage = tabPage;
-		clearTimeout(timeoutLogs);
-		clearTimeout(timeoutImage);
+        clearAllTimeout();
         updateLogs();
         updateImage();
     });
@@ -89,16 +86,9 @@ function goToNextStreamer(name) {
 
 function updateRate(e) {
     interval = parseInt(e.target.value);
-
-    //if (timeoutImage != null) {
-    //    clearTimeout(timeoutImage);
-    //    timeoutImage = setTimeout(updateImage, interval * 1000);
-    //}
-    //
-    //if (timeoutLogs != null) {
-    //    clearTimeout(timeoutLogs);
-    //    timeoutLogs = setTimeout(updateLogs, interval * 1000);
-    //}
+    clearAllTimeout();
+    setTimeout(updateImage, interval * 1000);
+    setTimeout(updateLogs, interval * 1000);
 
 }
 
@@ -109,7 +99,7 @@ function updateLogs(single) {
 
             fetch(tabname + '/logs').then(res => res.json()).then(res => {
 
-				selectedIdlerPage.querySelector(".info-bot .data").textContent = res.name;
+                selectedIdlerPage.querySelector(".info-bot .data").textContent = res.name;
                 selectedIdlerPage.querySelector(".info-account .data").textContent = res.account;
                 selectedIdlerPage.querySelector(".info-game .data").textContent = decodeURIComponent(res.game);
 
@@ -132,19 +122,19 @@ function updateLogs(single) {
                     logArea.setAttribute("data-index", res.logs.length);
                 }
                 if (!single) {
-                    timeoutLogs = setTimeout(updateLogs, interval * 1000);
+                    setTimeout(updateLogs, interval * 1000);
                 }
 
             }).catch((e) => {
                 console.log("Failed to get logs: " + e.message);
                 if (!single) {
-                    timeoutLogs = setTimeout(updateLogs, interval * 1000);
+                    setTimeout(updateLogs, interval * 1000);
                 }
             })
         }
     } catch (e) {
         if (!single) {
-            timeoutLogs = setTimeout(updateLogs, interval * 1000);
+            setTimeout(updateLogs, interval * 1000);
         }
     }
 }
@@ -157,26 +147,25 @@ function updateImage(single) {
             var tabname = selectedIdlerButton.getAttribute("data-name");
 
             fetch(tabname + '/screenshot').then(res => res.text()).then(res => {
-               
 
                 selectedIdlerPage.querySelector(".holdingImage").style.display = "none";
                 selectedIdlerPage.querySelector(".statusImage").style.display = "inline-block";
                 selectedIdlerPage.querySelector(".statusImage").setAttribute("src", 'data:image/jpg;base64,' + res);
                 if (!single) {
-                    timeoutImage = setTimeout(updateImage, interval * 1000);
+                    setTimeout(updateImage, interval * 1000);
                 }
 
             }).catch((e) => {
                 console.log("Failed to get image: " + e.message);
                 if (!single) {
-                    timeoutImage = setTimeout(updateImage, interval * 1000);
+                    setTimeout(updateImage, interval * 1000);
                 }
             })
         }
     } catch (e) {
         console.log("Failed to get image: " + e.message);
         if (!single) {
-            timeoutImage = setTimeout(updateImage, interval * 1000);
+            setTimeout(updateImage, interval * 1000);
         }
     }
 
@@ -216,11 +205,11 @@ function secondsToHms(d) {
 }
 
 document.getElementById('killButton').addEventListener('click', () => {
-    fetch('kill', {
-        method: 'POST'
-    }).then(() => {
-        setTimeout(window.location.reload, 2000)
-    }).catch(err => alert(err.message))
+    //fetch('kill', {
+    //    method: 'POST'
+    //}).then(() => {
+    //    setTimeout(window.location.reload, 2000)
+    //}).catch(err => alert(err.message))
 })
 
 //get all idlers
