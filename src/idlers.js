@@ -81,6 +81,11 @@ export class Idler {
             await this.page.mouse.up()
         }
     }
+	
+	async hourReload(){
+		this.updateStatus('⚠️ ${this.currentStreamer} has been idled for more than 1 hour');
+		await goToLiveStreamer();
+	}
 
     async goToLiveStreamer() {
         if (this.page == null) {

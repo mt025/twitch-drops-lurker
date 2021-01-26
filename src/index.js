@@ -1,3 +1,9 @@
+export const settings = {
+    CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
+    VIEWPORT_WIDTH: 1080,
+    VIEWPORT_HEIGHT: 720
+}
+
 import {
     prepareBrowser,
     preparePage
@@ -19,12 +25,6 @@ export const idlers = [];
 idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
 
 
-//TODO - Not exporting to puppeteerpage for some reason?!
-export const settings = {
-    CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
-	VIEWPORT_WIDTH: 1080,
-	VIEWPORT_HEIGHT: 720
-}
 
 //Get the idler object by name
 export function getIdlersByName(name) {
@@ -44,7 +44,7 @@ async function keepIdlersAlive() {
             } catch (e) {}
             await waitAsync(10000);
         }
-		await waitAsync(1000);
+        await waitAsync(1000);
     }
 
 }
@@ -67,20 +67,21 @@ async function main() {
 
             //Refresh
             setInterval(async() => {
-                 // Watch for live status, and go to another streamer if needed
+
+                if (idler.currentStreamer == null)
+                    return;
+
+                // Watch for live status, and go to another streamer if needed
                 if (!(await idler.isPageOnValidStreamer())) {
                     await idler.goToLiveStreamer();
                 }
 
-				// Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
-                if (idler.currentStreamer == null)
-                    return;
-
+                // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
                 const msElapsed = Date.now() - idler.startTime;
                 if (msElapsed < 1000 * 60 * 60) {
                     return;
                 }
-                await idler.goToLiveStreamer();
+                await idler.hourReload();
 
             }, 1000 * 60)
 
