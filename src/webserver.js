@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
-import {    idlers,    getIdlersByName, settings} from './index';
+import { idlers, getIdlersByName, settings } from './index';
 import fs from 'fs';
 
 const app = express();
@@ -12,13 +12,13 @@ app.use(express.static('public'));
 app.get('/health', (req, res) => res.status(200).send('ok'));
 
 app.get('/idlers', function (req, res) {
-	res.set('Content-Type', 'application/json')
+    res.set('Content-Type', 'application/json')
     res.send(JSON.stringify(idlers, function replacer(key, value) {
-            if (key == 'page') {
-                return undefined
-            };
-            return value;
-        }));
+        if (key == 'page') {
+            return undefined
+        };
+        return value;
+    }));
 });
 
 app.get('/settings', function (req, res) {
@@ -30,11 +30,11 @@ app.post('/mouseClick', (req, res) => {
     try {
         const posX = parseInt(req.body.x);
         const posY = parseInt(req.body.y);
-		const name = req.body.name;
+        const name = req.body.name;
         res.status(200).send('ok');
-		let idler = getIdlersByName(name);
-        idler.clickXY(posX,posY);
-       
+        let idler = getIdlersByName(name);
+        idler.clickXY(posX, posY);
+
     } catch (e) {
 
     }
@@ -48,12 +48,12 @@ app.post('/kill', (req, res) => {
 app.post('/:username/nextstreamer', (req, res) => {
     try {
         let idler = getIdlersByName(req.params.username);
-		if(idler.Navigating){
-			throw "";
-		}
-		idler.goToLiveStreamer();
-		res.status(200).send('ok');
-		
+        if (idler.Navigating) {
+            throw "";
+        }
+        idler.goToLiveStreamer();
+        res.status(200).send('ok');
+
     } catch (e) {
         res.status(500).send();
     }
@@ -63,13 +63,13 @@ app.get('/:username/logs', async function (req, res) {
 
     try {
         let idler = getIdlersByName(req.params.username);
-		res.send(JSON.stringify(idler, function replacer(key, value) {
+        res.send(JSON.stringify(idler, function replacer(key, value) {
             if (key == 'page') {
                 return undefined
             };
             return value;
-        }));		
-		
+        }));
+
     } catch (e) {
         res.status(500).send();
     }
@@ -82,10 +82,10 @@ app.get('/:username/screenshot', async function (req, res) {
         await idler.page.screenshot({
             path: './public/status.jpg'
         });
-		res.type('text');
-		let data = fs.readFileSync(path.join(__dirname, '..', 'public', 'status.jpg'))
+        res.type('text');
+        let data = fs.readFileSync(path.join(__dirname, '..', 'public', 'status.jpg'))
         res.send(data.toString('base64'));
-		
+
     } catch (e) {
         res.status(500).send(e);
         console.error(`Unable to take screenshot for ${req.params.username} - ${e.message}`);

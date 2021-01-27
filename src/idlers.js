@@ -2,7 +2,7 @@ import path from 'path';
 import {
     waitAsync
 }
-from './utils';
+    from './utils';
 
 export class Idler {
 
@@ -30,14 +30,14 @@ export class Idler {
         this.storage = path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
     }
 
-    updateStatus(status,includedLink) {
+    updateStatus(status, includedLink) {
         let date = new Date();
-        status = date.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2,useGrouping: false}) 
-		+ ":" 
-		+ date.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2,useGrouping: false}) 
-		+ ": " 
-		+ status;
-		
+        status = date.getHours().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })
+            + ":"
+            + date.getMinutes().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })
+            + ": "
+            + status;
+
         console.debug(`${this.name} - ${status}`);
         this.logs.push({
             index: this.logindex++,
@@ -50,9 +50,8 @@ export class Idler {
     }
 
     async keepAlive() {
-        if (this.page == null) {
-            return
-        }
+        if (this.page == null) return;
+
         this.page.bringToFront()
         const randomScreenPos = (max) => Math.floor(Math.random() * max)
         await this.page.mouse.move(randomScreenPos(1080), randomScreenPos(720))
@@ -60,18 +59,16 @@ export class Idler {
     }
 
     async clickXY(x, y) {
-        if (this.page == null) {
-            return
-        }
+        if (this.page == null) return;
+
         await this.page.mouse.move(x, y);
         await this.emulateClickAsync();
         this.updateStatus(`🐭 Mouse click request received for ${x},${y}`);
     }
 
     async emulateClickAsync(selector) {
-        if (this.page == null) {
-            return
-        }
+        if (this.page == null) return;
+        
         if (selector) {
             await this.page.click(selector, {
                 delay: 50 + Math.random() * 100
@@ -82,17 +79,16 @@ export class Idler {
             await this.page.mouse.up()
         }
     }
-	
-	async hourReload(){
-        if(this.currentStreamer == null) return;
-		this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`,this.currentStreamer);
-		await this.goToLiveStreamer();
-	}
+
+    async hourReload() {
+        if (this.currentStreamer == null) return;
+        this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`, this.currentStreamer);
+        await this.goToLiveStreamer();
+    }
 
     async goToLiveStreamer() {
-        if (this.page == null) {
-            return
-        }
+        if (this.page == null) return;
+        
         this.Navigating = true;
         this.updateStatus('🔍 Looking for a streamer to watch');
         this.currentStreamer = null;
@@ -130,7 +126,7 @@ export class Idler {
 
         await this.page.goto(this.streamerLink);
 
-        this.updateStatus(`✨ Started watching ${this.currentStreamer}`,this.currentStreamer);
+        this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer);
         await waitAsync(2000);
 
         // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
@@ -153,14 +149,14 @@ export class Idler {
 
         const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container');
         if (!liveIndicatorElm) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`,this.currentStreamer);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`, this.currentStreamer);
             return false;
         }
 
         //TODO Catch eval errors
         const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
         if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`,this.currentStreamer);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`, this.currentStreamer);
             return false;
         }
 
@@ -175,7 +171,7 @@ export class Idler {
         }
 
         if (!dropsEnabled) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`,this.currentStreamer);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`, this.currentStreamer);
             return false
         }
 
