@@ -30,7 +30,7 @@ export class Idler {
         this.storage = path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
     }
 
-    updateStatus(status) {
+    updateStatus(status,includedLink) {
         let date = new Date();
         status = date.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2,useGrouping: false}) 
 		+ ":" 
@@ -41,7 +41,8 @@ export class Idler {
         console.debug(`${this.name} - ${status}`);
         this.logs.push({
             index: this.logindex++,
-            status
+            status,
+            includedLink
         });
 
         if (this.logs.length > 100)
@@ -83,7 +84,8 @@ export class Idler {
     }
 	
 	async hourReload(){
-		this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`);
+        if(this.currentStreamer == null) return;
+		this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`,this.currentStreamer);
 		await this.goToLiveStreamer();
 	}
 
@@ -128,7 +130,7 @@ export class Idler {
 
         await this.page.goto(this.streamerLink);
 
-        this.updateStatus(`✨ Started watching ${this.currentStreamer}`);
+        this.updateStatus(`✨ Started watching ${this.currentStreamer}`,this.currentStreamer);
         await waitAsync(2000);
 
         // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
@@ -151,14 +153,14 @@ export class Idler {
 
         const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container');
         if (!liveIndicatorElm) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer live`,this.currentStreamer);
             return false;
         }
 
         //TODO Catch eval errors
         const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
         if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`,this.currentStreamer);
             return false;
         }
 
@@ -173,7 +175,7 @@ export class Idler {
         }
 
         if (!dropsEnabled) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`,this.currentStreamer);
             return false
         }
 

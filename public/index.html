@@ -1,52 +1,50 @@
- <!DOCTYPE html>
-	<html lang='en'>
-		<head>
-			<title>twitch-drops-lurker Monitoring</title>
-			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-			<link href="style.css" rel="stylesheet">
-			<meta charset="utf-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>twitch-drops-lurker Monitoring</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+        <link href="style.css" rel="stylesheet">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		</head>
-		<body>
-			<div class='container-fluid'>
-				<div class="d-flex align-items-start" id="mainTabs">
-					<div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-						<a class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">🏠 Home</a>
-						<a class="nav-link btn btn-success" id="addIdler">➕ Add New Idler</a>
-						<a class="nav-link btn btn-danger" id="killButton">❌ Stop Process</a>
-					</div>
-					<div class="tab-content" id="v-pills-tabContent">
-						<div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-							<h1> Welcome </h1>
-							<p> Welcome to twitch-drops-lurker.</p>
-							
-						</div>
-					</div>
+    </head>
+    <body>
+        <div class='container-fluid'>
+            <div class="d-flex align-items-start" id="mainTabs">
+                <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">🏠 Home</a>
+                    <a class="nav-link btn btn-success" id="addIdler">➕ Add New Idler</a>
+                    <a class="nav-link btn btn-danger" id="killButton">❌ Stop Process</a>
+                </div>
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <h1> Welcome </h1>
+                        <p>Welcome to twitch-drops-lurker.</p>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <script src="main.js"></script>
+        
+        <template id='idlerContent'> 
+			<div class="row">
+				<div class="col-xl-8">
+					<div class="statusInfo">
+                        <div class='info-bot badge bg-success'>🤖 <span class='data'>...</span></div>
+                        <div class='info-account badge bg-success'>📒 <span class='data'>...</span></div>
+                        <div class='info-game badge bg-success'>🎮 <span class='data'>...</span></div>
+                        <div class='info-streamer badge bg-success'>📺 <a target="_blank" class='data'>...</a></div>
+                        <div class='info-type badge bg-success'>🔌 <span class='data'>...</span></div>
+                        <div class='info-time badge bg-success'>🕒 <span class='data'>...</span></div>
+                    </div>
 				</div>
-			</div>
-			
-			
-			<script src="main.js"></script>
-			
-			<template id='idlerContent'> 
-			
-			<div class="statusImageWrap">
-						<div class="statusInfo">
-							<div class='info-bot badge bg-success'>🤖 <span class='data'>...</span></div>
-							<div class='info-account badge bg-success'>📒 <span class='data'>...</span></div>
-							<div class='info-game badge bg-success'>🎮 <span class='data'>...</span></div>
-							<div class='info-streamer badge bg-success'>📺 <a target="_blank" class='data'>...</a></div>
-							<div class='info-type badge bg-success'>🔌 <span class='data'>...</span></div>
-							<div class='info-time badge bg-success'>🕒 <span class='data'>...</span></div>
-						</div>
-						<hr/>
-					<h2 class='holdingImage' class="text-center"> Loading screenshot..... </h2>
-					<img style="display:none" class="statusImage"/>
-			</div>
-					<div class="statusInfoWrap">
-						<div class="settings">
+
+				<div class="col-xl-4">
+                    <div class="settings">
 						<button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
 						<button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
 						<button type="button" class="btn btn-danger btn-sm edit-idler">Edit Idler</button>
@@ -55,10 +53,28 @@
 						<input class="interval-spinner" type='' min='0.5' max='999' class="form-control">
 						</div>
 						</div>
-						<hr/>
-						<h2 class='holdingLogs' class="text-center"> Loading logs ..... </h2>
-						<div class="statusLog" data-index="0"></div>
-					</div>
-			</template>
-		</body>
-	</html>
+
+				</div>
+
+
+			</div>
+
+
+
+        <div class="row">
+			<div class="col-xl-8">
+        <div class="statusImageWrap">
+                <h2 class='holdingImage' class="text-center"> Loading screenshot..... </h2>
+                <img style="display:none" class="statusImage"/>
+				</div>
+			</div>
+			<div class="col-xl-4">
+                <div class="statusInfoWrap">
+                    <h2 class='holdingLogs' class="text-center"> Loading logs ..... </h2>
+                    <div class="statusLog" data-index="0"></div>
+				</div>
+			</div>
+            </div>
+        </template>
+    </body>
+</html>

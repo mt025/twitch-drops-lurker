@@ -16,27 +16,23 @@ body{
 }
 
 .statusInfoWrap{
-	display:inline-block;
 	border: 1px solid #ddd;
-	max-width:40%;
-	min-width:500px;
+	margin-bottom:20px;
 }
 
 .statusImageWrap {
-	border: 1px solid #ddd;
-	vertical-align: top;
-	display:inline-block;
-	margin-bottom:10px;
-	width:59%;
 	
+	margin-bottom:20px;
+	text-align: center;
 }
 hr{
 	margin:0;
-	
 }
 
 .statusImage {
 	width:100%;
+	max-width: 1000px;
+	border: 1px solid #ddd;
 }
 
 .holdingImage{
@@ -49,6 +45,8 @@ hr{
 	text-align:center;
 	min-height:3rem;
 	padding-top:0.75rem;
+	border:1px solid #ddd;
+	margin-bottom:10px;
 }
 
 
@@ -84,7 +82,8 @@ hr{
 .settings{
 	min-height:3rem;
 	padding:0.5rem;
-	
+	border:1px solid #ddd;
+	margin-bottom:10px;
 }
 
 .settings button{
@@ -102,6 +101,6 @@ hr{
 
 .interval{
 	font-size: 0.75rem;
-	float:right;
+	display:inline-block;
 	
 }

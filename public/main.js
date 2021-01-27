@@ -126,7 +126,14 @@ async function updateLogs() {
         let logIndex = parseInt(logArea.getAttribute("data-index"));
 
         for (let i = logIndex; i < res.logs.length; i++) {
-            logArea.insertAdjacentHTML('afterbegin', `<p>${res.logs[i].status} </p>`);
+            var item = res.logs[i];
+            var output = item.status;
+
+            if(item.includedLink){
+                output =  output.replace(item.includedLink, `<a href='https://twitch.tv/${item.includedLink}' target='_blank'>${item.includedLink}</a>`);
+            }
+
+            logArea.insertAdjacentHTML('afterbegin', `<p>${output} </p>`);
         }
 
         if (res.logs.length > 0) {
