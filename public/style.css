@@ -15,9 +15,13 @@ body{
 	white-space:nowrap;
 }
 
-.statusInfoWrap{
+.logsWrap{
 	border: 1px solid #ddd;
 	margin-bottom:20px;
+	padding-left:1rem;
+	padding-right:1rem;
+	padding-top:1rem;
+	min-height:500px;
 }
 
 .statusImageWrap {
@@ -67,10 +71,6 @@ hr{
 }
 .statusLog{
 	width:100%;
-	padding-left:1rem;
-	padding-right:1rem;
-	padding-top:1rem;
-	min-height:500px;
 }
 
 
@@ -78,12 +78,13 @@ hr{
 	width:100%;
 }
 
-
 .settings{
-	min-height:3rem;
-	padding:0.5rem;
-	border:1px solid #ddd;
-	margin-bottom:10px;
+	display:inline-block;
+
+}
+
+.status{
+	display:inline-block;
 }
 
 .settings button{
@@ -104,3 +105,4 @@ hr{
 	display:inline-block;
 	
 }
+

@@ -9,15 +9,9 @@ let imageIntervalTime = localStorage.getItem("imageIntervalTime") ? parseInt(loc
 let logsInterval = setInterval(updateLogs, logIntervalTime);
 let imageInterval = setInterval(updateImage, imageIntervalTime);
 
-let selectedIdlerName = function () {
-    return selectedIdlerButton().getAttribute("data-name");
-};
-let selectedIdlerButton = function () {
-    return document.querySelector('#mainTabs .nav-link.active');
-};
-let selectedIdlerPage = function () {
-    return document.querySelector('#mainTabs .tab-pane.active');
-};
+let selectedIdlerName = () => selectedIdlerButton().getAttribute("data-name");
+let selectedIdlerButton = () => document.querySelector('#mainTabs .nav-link.active');
+let selectedIdlerPage = () => document.querySelector('#mainTabs .tab-pane.active');
 
 function createNewTab(idler) {
     var name = idler.name;
@@ -37,14 +31,14 @@ function createNewTab(idler) {
     tabPage.appendChild(cloneNode);
 
     //Set change tab event
-    tabButton.addEventListener('shown.bs.tab', function (event) {
-        updateImage();
-        updateLogs();
+    tabButton.addEventListener('shown.bs.tab', () => {
+            updateImage();
+            updateLogs();
 
-    });
+        });
 
     //Set image click handler
-    tabPage.querySelector(".statusImage").addEventListener('click', e => {
+    tabPage.querySelector(".statusImage").addEventListener('click', (e) => {
         var rect = e.currentTarget.getBoundingClientRect();
         const offsetX = map(e.clientX - rect.left - 1, 0, e.currentTarget.width, 0, width);
         const offsetY = map(e.clientY - rect.top - 1, 0, e.currentTarget.height, 0, height);
@@ -57,19 +51,19 @@ function createNewTab(idler) {
     tabPage.querySelector(".interval-spinner").addEventListener('keyup', updateRate);
 
     //Set next streamer button handler
-    tabPage.querySelector(".next-streamer").addEventListener('click', e => {
+    tabPage.querySelector(".next-streamer").addEventListener('click', () => {
         goToNextStreamer(name);
 
     });
 
     //Set edit idler button handler
-    tabPage.querySelector(".edit-idler").addEventListener('click', e => {
-        editIdler(name);
+    tabPage.querySelector(".edit-idler").addEventListener('click', () => {
+            editIdler(name);
 
-    });
+        });
 
     //Set refresh button handler
-    tabPage.querySelector(".refresh-logs-screenshot").addEventListener('click', e => {
+    tabPage.querySelector(".refresh-logs-screenshot").addEventListener('click', () => {
         updateLogs();
         updateImage();
 
@@ -98,7 +92,7 @@ function updateRate(e) {
     imageIntervalTime = (60 / parseInt(e.target.value)) * 1000;
     clearInterval(imageInterval);
     imageInterval = setInterval(updateImage, imageIntervalTime);
-	localStorage.setItem("imageIntervalTime", imageIntervalTime);
+    localStorage.setItem("imageIntervalTime", imageIntervalTime);
 }
 
 async function updateLogs() {
@@ -129,8 +123,8 @@ async function updateLogs() {
             var item = res.logs[i];
             var output = item.status;
 
-            if(item.includedLink){
-                output =  output.replace(item.includedLink, `<a href='https://twitch.tv/${item.includedLink}' target='_blank'>${item.includedLink}</a>`);
+            if (item.includedLink) {
+                output = output.replace(item.includedLink, `<a href='https://twitch.tv/${item.includedLink}' target='_blank'>${item.includedLink}</a>`);
             }
 
             logArea.insertAdjacentHTML('afterbegin', `<p>${output} </p>`);
@@ -189,13 +183,14 @@ document.getElementById('killButton').addEventListener('click', () => {
 
     var exit = confirm("Are you sure you want to stop the twitch-drops-lurker process?");
 
-    if (exit) {
-        fetch('kill', {
-            method: 'POST'
-        }).then(() => {
-            setTimeout(window.location.reload, 2000)
-        }).catch(err => alert(err.message))
-    }
+    if (!exit) { return; }
+
+    fetch('kill', {
+        method: 'POST'
+    }).then(() => {
+        setTimeout(window.location.reload, 2000)
+    }).catch(err => alert(err.message))
+
 })
 
 //get all idlers

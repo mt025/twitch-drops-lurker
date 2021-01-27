@@ -8,16 +8,16 @@ import {
     prepareBrowser,
     preparePage
 }
-from './puppeteerPage'
+    from './puppeteerPage'
 import './webserver'
 import {
     Idler
 }
-from './idlers'
+    from './idlers'
 import {
     waitAsync
 }
-from './utils'
+    from './utils'
 import fs from 'fs';
 
 export const idlers = [];
@@ -41,7 +41,7 @@ async function keepIdlersAlive() {
         for (let i = 0; i < idlers.length; i++) {
             try {
                 await idlers[i].keepAlive();
-            } catch (e) {}
+            } catch (e) { }
             await waitAsync(10000);
         }
         await waitAsync(1000);
@@ -66,7 +66,7 @@ async function main() {
             idler.goToLiveStreamer();
 
             //Refresh
-            setInterval(async() => {
+            setInterval(async () => {
 
                 if (idler.currentStreamer == null)
                     return;

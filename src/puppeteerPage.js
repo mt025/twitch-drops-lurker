@@ -30,8 +30,8 @@ const chromeArgs = [
     '--mute-audio', //Mutes device audio
     '--no-first-run', //Disables first run tasks - TODO: TEST
     '--disable-breakpad', //Disables the crash reporting,
-	'--disable-background-media-suspend', //Keep media running in background tabs
-	"--process-per-tab" //Keep all tabs active
+    '--disable-background-media-suspend', //Keep media running in background tabs
+    "--process-per-tab" //Keep all tabs active
 ];
 
 if (headless) {
@@ -44,17 +44,17 @@ export let browser = null;
 export async function prepareBrowser() {
     // Prepare browser
     browser = await puppeteer.launch({
-            //TOFIX
-			executablePath: settings.CHROME_EXEC_PATH,
-			executablePath: "/usr/bin/chromium-browser",
-            args: chromeArgs,
-            headless,
-            dumpio: false,
-            defaultViewport: {
-                width: settings.VIEWPORT_WIDTH,
-                height: settings.VIEWPORT_HEIGHT
-            }
-        });
+        //TOFIX
+        executablePath: settings.CHROME_EXEC_PATH,
+        executablePath: "/usr/bin/chromium-browser",
+        args: chromeArgs,
+        headless,
+        dumpio: false,
+        defaultViewport: {
+            width: settings.VIEWPORT_WIDTH,
+            height: settings.VIEWPORT_HEIGHT
+        }
+    });
     return browser;
 }
 
@@ -65,23 +65,23 @@ export async function preparePage(idler) {
     }
     const savedCookies = require(idler.cookies);
     const savedLocalStorage = require(idler.storage);
-	
-	//Setup page
+
+    //Setup page
     idler.page = await browser.newPage();
     await idler.page.setUserAgent('Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.197 Safari/537.36');
 
-	//Setup cookies
+    //Setup cookies
     try {
         await idler.page.setCookie(...savedCookies);
     } catch (e) {
         throw new Error("Failed to set cookies");
     }
 
-    
+
     await idler.page.goto('https://twitch.tv/');
     await waitAsync(100);
 
-	// Setup localStorage for twitch.tv
+    // Setup localStorage for twitch.tv
     try {
         await idler.page.evaluate((_savedLocalStorage) => {
             JSON.parse(_savedLocalStorage).forEach(([key, value]) => {
@@ -95,10 +95,7 @@ export async function preparePage(idler) {
         throw new Error(`Failed to set localstorage:  ${e.message}`);
 
     }
-	
-	
-	
-	
+
     await waitAsync(500);
 
     return idler.page;
