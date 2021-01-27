@@ -61,7 +61,7 @@ export async function prepareBrowser() {
 export async function preparePage(idler) {
 
     if (!fs.existsSync(idler.cookies) || !fs.existsSync(idler.storage)) {
-        throw new Error(idler.account + '_cookies.json or ' + idler.account + '_localStorage.json not found. Please check README for installation instructions')
+        throw new Error(`${idler.account}_cookies.json or ${idler.account}_localStorage.json not found. Please check README for installation instructions`)
     }
     const savedCookies = require(idler.cookies);
     const savedLocalStorage = require(idler.storage);
@@ -92,7 +92,7 @@ export async function preparePage(idler) {
             window.localStorage.setItem('video-quality', '{"default":"160p30"}');
         }, [JSON.stringify(savedLocalStorage)]);
     } catch (e) {
-        throw new Error("Failed to set localstorage: " + e.message);
+        throw new Error(`Failed to set localstorage:  ${e.message}`);
 
     }
 	

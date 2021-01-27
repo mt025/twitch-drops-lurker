@@ -26,8 +26,8 @@ export class Idler {
     }
 
     loadCookiesStoragePath() {
-        this.cookies = path.join(__dirname, '..', "userlogins", this.account + '_cookies.json');
-        this.storage = path.join(__dirname, '..', "userlogins", this.account + '_localStorage.json');
+        this.cookies = path.join(__dirname, '..', "userlogins", `${this.account}_cookies.json`);
+        this.storage = path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
     }
 
     updateStatus(status) {
@@ -38,7 +38,7 @@ export class Idler {
 		+ ": " 
 		+ status;
 		
-        console.debug(this.name + " - " + status);
+        console.debug(`${this.name} - ${status}`);
         this.logs.push({
             index: this.logindex++,
             status
@@ -83,8 +83,8 @@ export class Idler {
     }
 	
 	async hourReload(){
-		this.updateStatus('⚠️ ${this.currentStreamer} has been idled for more than 1 hour');
-		await goToLiveStreamer();
+		this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`);
+		await this.goToLiveStreamer();
 	}
 
     async goToLiveStreamer() {

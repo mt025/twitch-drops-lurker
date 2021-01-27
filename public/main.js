@@ -23,16 +23,16 @@ function createNewTab(idler) {
     var name = idler.name;
 
     // create the tab
-    document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', '<a class="nav-link" data-name="' + name + '" id="v-pills-' + name + '-tab" data-bs-toggle="pill" href="#v-pills-' + name + '" role="tab" aria-controls="v-pills-' + name + '" aria-selected="true">Idler: ' + name + '</a>')
+    document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', `<a class="nav-link" data-name="${name}" id="v-pills-${name}-tab" data-bs-toggle="pill" href="#v-pills-${name}" role="tab" aria-controls="v-pills-${name}" aria-selected="true">Idler: ${name}</a>`)
 
     // create the tab content
-    document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', '<div class="tab-pane fade" data-name="' + name + '" id="v-pills-' + name + '" role="tabpanel" aria-labelledby="v-pills-' + name + '-tab"></div>')
+    document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', `<div class="tab-pane fade" data-name="${name}" id="v-pills-${name}" role="tabpanel" aria-labelledby="v-pills-${name}-tab"></div>`)
 
     var temp = document.querySelector("#idlerContent");
     var cloneNode = temp.content.cloneNode(true);
 
-    var tabPage = document.querySelector("#v-pills-" + name);
-    var tabButton = document.querySelector('#v-pills-' + name + '-tab');
+    var tabPage = document.querySelector(`#v-pills-${name}`);
+    var tabButton = document.querySelector(`#v-pills-${name}-tab`);
 
     tabPage.appendChild(cloneNode);
 
@@ -86,7 +86,7 @@ function editIdler(name) {
 
 function goToNextStreamer(name) {
 
-    fetch(name + '/nextstreamer', {
+    fetch(`${name}/nextstreamer`, {
         method: 'POST'
     }).catch((e) => {
         console.log(e)
@@ -108,7 +108,7 @@ async function updateLogs() {
         return;
     }
 
-    fetch(name + '/logs').then(res => res.json()).then(res => {
+    fetch(`${name}/logs`).then(res => res.json()).then(res => {
         var page = selectedIdlerPage();
         page.querySelector(".info-bot .data").textContent = res.name;
         page.querySelector(".info-account .data").textContent = res.account;
@@ -126,7 +126,7 @@ async function updateLogs() {
         let logIndex = parseInt(logArea.getAttribute("data-index"));
 
         for (let i = logIndex; i < res.logs.length; i++) {
-            logArea.insertAdjacentHTML('afterbegin', "<p>" + res.logs[i].status + "</p>");
+            logArea.insertAdjacentHTML('afterbegin', `<p>${res.logs[i].status} </p>`);
         }
 
         if (res.logs.length > 0) {
@@ -134,7 +134,7 @@ async function updateLogs() {
         }
 
     }).catch((e) => {
-        console.log("Failed to get logs: " + e.message);
+        console.log(`Failed to get logs: ${e.message}`);
     });
 }
 
@@ -148,16 +148,16 @@ async function updateImage() {
     //Make sure the last image has loaded so we don't flood the server
     if (imageLoadFinished) {
         imageLoadFinished = false;
-        fetch(name + '/screenshot').then(res => res.text()).then(res => {
+        fetch(`${name}/screenshot`).then(res => res.text()).then(res => {
 
             var page = selectedIdlerPage();
             page.querySelector(".holdingImage").style.display = "none";
             page.querySelector(".statusImage").style.display = "inline-block";
-            page.querySelector(".statusImage").setAttribute("src", 'data:image/jpg;base64,' + res);
+            page.querySelector(".statusImage").setAttribute("src", `data:image/jpg;base64,${res}`);
             imageLoadFinished = true;
         }).catch((e) => {
             imageLoadFinished = true;
-            console.log("Failed to get image: " + e.message);
+            console.log(`Failed to get image: ${e.message}`);
         });
     }
 

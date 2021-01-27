@@ -88,7 +88,7 @@ app.get('/:username/screenshot', async function (req, res) {
 		
     } catch (e) {
         res.status(500).send(e);
-        console.error("Unable to take screenshot for " + req.params.username + " - " + e.message);
+        console.error(`Unable to take screenshot for ${req.params.username} - ${e.message}`);
     }
 })
 
@@ -103,7 +103,7 @@ try {
     }
 
 } catch (e) {
-    console.error("Error: could not set port to " + process.argv[2] + " using default " + port);
+    console.error(`Error: could not set port to ${process.argv[2]} using default ${port}`);
 
 }
 

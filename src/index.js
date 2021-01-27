@@ -85,9 +85,9 @@ async function main() {
 
             }, 1000 * 60)
 
-            console.log("Created page for " + idler.name + " using account " + idler.account);
+            console.log(`Created page for ${idler.name} using account ${idler.account}`);
         } catch (e) {
-            console.error("Failed to create page - " + idler.name + " - " + e.message);
+            console.error(`Failed to create page -  ${idler.name} - ${e.message}`);
         }
 
     });
