@@ -2,3 +2,4 @@ node_modules
 status.jpg
 *cookies.json
 *localStorage.json
+package-lock.json
