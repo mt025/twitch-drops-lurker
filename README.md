@@ -1,7 +1,7 @@
 # twitch-drops-lurker
 
 ## Info
-This is a "work in progress" fork of NiciusB/twitch-drops-lurker. 
+This is a "<b>work in progress</b>" fork of NiciusB/twitch-drops-lurker. 
 
 ![Screenshot showing twitch drops lurker](screenshot.png)
 
