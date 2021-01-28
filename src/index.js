@@ -23,6 +23,7 @@ import fs from 'fs';
 export const idlers = [];
 //idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
 idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
+//idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true,["https://www.twitch.tv/fraser_"]));
 
 
 
