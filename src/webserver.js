@@ -14,9 +14,8 @@ app.get('/health', (req, res) => res.status(200).send('ok'));
 app.get('/idlers', function (req, res) {
     res.set('Content-Type', 'application/json')
     res.send(JSON.stringify(idlers, function replacer(key, value) {
-        if (key == 'page' || key == 'runningID') {
-            return undefined
-        };
+        if (key == 'page') {return undefined};
+        if (key == 'running'){return value != null;}
         return value;
     }));
 });
@@ -55,7 +54,21 @@ app.post('/:username/stop', (req, res) => {
         res.status(200).send('ok');
 
     } catch (e) {
-        res.status(500).send();
+        res.status(500).send(e);
+    }
+});
+
+app.post('/:username/start', (req, res) => {
+    try {
+        let idler = getIdlersByName(req.params.username);
+        if (idler.navigating) {
+            throw "";
+        }
+        idler.start();
+        res.status(200).send('ok');
+
+    } catch (e) {
+        res.status(500).send(e);
     }
 });
 
@@ -71,7 +84,7 @@ app.post('/:username/nextstreamer', (req, res) => {
         res.status(200).send('ok');
 
     } catch (e) {
-        res.status(500).send();
+        res.status(500).send(e);
     }
 });
 
@@ -80,14 +93,13 @@ app.get('/:username/logs', async function (req, res) {
     try {
         let idler = getIdlersByName(req.params.username);
         res.send(JSON.stringify(idler, function replacer(key, value) {
-            if (key == 'page' || key == 'runningID') {
-                return undefined
-            };
+            if (key == 'page') {return undefined};
+            if (key == 'running'){return value != null;}
             return value;
         }));
 
     } catch (e) {
-        res.status(500).send();
+        res.status(500).send(e);
     }
 })
 
@@ -104,7 +116,6 @@ app.get('/:username/screenshot', async function (req, res) {
 
     } catch (e) {
         res.status(500).send(e);
-        console.error(`Unable to take screenshot for ${req.params.username} - ${e.message}`);
     }
 })
 

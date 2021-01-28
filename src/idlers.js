@@ -19,9 +19,6 @@ export class Idler {
         //Const
         this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b';
 
-        //Dynamic
-        this.loadCookiesStoragePath();
-
         //vars
         this.page = null;
         this.logs = [];
@@ -32,7 +29,11 @@ export class Idler {
         this.currentStreamerListIndex = 0;
         this.logindex = 0;
         this.navigating = false;
-        this.runningID = null;
+        
+        this.running = null;
+
+        //Dynamic
+        this.loadCookiesStoragePath();
     }
 
     loadCookiesStoragePath() {
@@ -61,8 +62,12 @@ export class Idler {
 
     async start() {
         try {
+
+            //Stop it first if its already running
+            if(this.page != null) this.stop();
+            this.navigating = true;
             //Refresh
-            this.runningID = setInterval(async () => {
+            this.running = setInterval(async () => {
 
                 if (this.currentStreamer == null)
                     return;
@@ -81,10 +86,10 @@ export class Idler {
 
             }, 1000 * 60)
 
+            this.updateStatus(`✔️ Started idler`);
+            
             //Prepare the page
             await preparePage(this);
-
-            this.updateStatus(`✔️ Started idler`);
 
             //Go to streamer
             await this.goToLiveStreamer();
@@ -97,8 +102,11 @@ export class Idler {
 
     async stop() {
         try {
-            clearInterval(this.runningID);
-            this.runningID = null;
+            clearInterval(this.running);
+            this.running = null;
+            this.navigating = false;
+            this.currentStreamer = null;
+            this.startTime = 0;
             disposePage(this);
             this.updateStatus(`❌ Stopped idler`);
 

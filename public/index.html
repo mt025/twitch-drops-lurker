@@ -41,22 +41,13 @@
 
         <div class="statusInfo">
             <div class="status">
+                <div class='info-status badge bg-warning'>📢 <span class='data'>...</span></div>
                 <div class='info-bot badge bg-success'>🤖 <span class='data'>...</span></div>
                 <div class='info-account badge bg-success'>📒 <span class='data'>...</span></div>
                 <div class='info-game badge bg-success'>🎮 <span class='data'>...</span></div>
                 <div class='info-streamer badge bg-success'>📺 <a target="_blank" class='data'>...</a></div>
                 <div class='info-type badge bg-success'>🔌 <span class='data'>...</span></div>
                 <div class='info-time badge bg-success'>🕒 <span class='data'>...</span></div>
-            </div>
-            <div class='settings'>
-                <button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
-                <button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
-                <button type="button" class="btn btn-danger btn-sm edit-idler">Edit Idler</button>
-                <button type="button" class="btn btn-danger btn-sm stop-idler">Stop Idler</button>
-                <div class='interval'>
-                    Frames per minute:
-                    <input class="interval-spinner" type='' min='0.5' max='999' class="form-control">
-                </div>
             </div>
         </div>
 
@@ -65,13 +56,22 @@
         <div class="row">
             <div class="col-xl-8">
                 <div class="statusImageWrap">
-                    <h2 class='holdingImage' class="text-center"> Loading screenshot..... </h2>
+                    <h2 class="holdingImage text-center"> Idler is not running </h2>
                     <img style="display:none" class="statusImage" />
                 </div>
             </div>
             <div class="col-xl-4">
                 <div class="logsWrap">
-                    <h5>Logs</h5>
+                    <div class='settings'>
+                        <button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
+                        <button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
+                        <button type="button" class="btn btn-danger btn-sm edit-idler">Edit Idler</button>
+                        <button type="button" class="btn btn-warning btn-sm start-stop-idler">Start/Stop Idler</button>
+                        <div class='interval'>
+                            Frames per minute:
+                            <input class="interval-spinner" type='' min='0.5' max='999' class="form-control">
+                        </div>
+                    </div>
                     <hr />
                     <h2 class='holdingLogs' class="text-center"> Loading logs ..... </h2>
                     <div class="statusLog" data-index="0"></div>

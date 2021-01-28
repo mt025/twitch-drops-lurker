@@ -29,9 +29,7 @@ body{
 	margin-bottom:20px;
 	text-align: center;
 }
-hr{
-	margin:0;
-}
+
 
 .statusImage {
 	width:100%;
@@ -47,8 +45,8 @@ hr{
 .statusInfo{
 	width:100%;
 	text-align:center;
-	min-height:3rem;
-	padding-top:0.75rem;
+	min-height:2.25rem;
+	padding-top:0.25rem;
 	border:1px solid #ddd;
 	margin-bottom:10px;
 }
@@ -56,7 +54,7 @@ hr{
 
 .statusInfo div{
 	text-overflow: ellipsis;
-	overflow:hidden;
+	/*! overflow:hidden; */
 	font-size:.9em;
 }
 
@@ -87,17 +85,11 @@ hr{
 	display:inline-block;
 }
 
-.settings button{
-	font-size:0.75rem;
-}
 
-
-.settings input[type='number']{
-		text-align:center;
-	font-size: 0.75rem;
-	width: 60px;
-	display: inline-block;
-	padding: 0.26rem 0rem;
+.settings .btn-sm{
+	padding: 1px 10px;
+		font-size:0.75rem;
+	
 }
 
 .interval{

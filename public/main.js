@@ -32,10 +32,10 @@ function createNewTab(idler) {
 
     //Set change tab event
     tabButton.addEventListener('shown.bs.tab', () => {
-            updateImage();
-            updateLogs();
+        updateImage();
+        updateLogs();
 
-        });
+    });
 
     //Set image click handler
     tabPage.querySelector(".statusImage").addEventListener('click', (e) => {
@@ -58,14 +58,13 @@ function createNewTab(idler) {
 
     //Set edit idler button handler
     tabPage.querySelector(".edit-idler").addEventListener('click', () => {
-            editIdler(name);
+        editIdler(name);
 
-        });
+    });
 
-    tabPage.querySelector(".stop-idler").addEventListener('click', () => {
-            stopIdler(name);
-
-        });
+    tabPage.querySelector(".start-stop-idler").addEventListener('click', () => {
+        stopStartIdler(name);
+    });
 
     //Set refresh button handler
     tabPage.querySelector(".refresh-logs-screenshot").addEventListener('click', () => {
@@ -83,12 +82,20 @@ function editIdler(name) {
     alert(name);
 }
 
-function stopIdler(name) {
-    fetch(`${name}/stop`, {
+function stopStartIdler(name) {
+    var page = selectedIdlerPage();
+    var running = page.querySelector(".start-stop-idler").getAttribute("data-running");
+    if(running == undefined || running == null) {return;}
+    page.querySelector(".start-stop-idler").classList.add("disabled");
+    fetch(`${name}/${running === "true" ? "stop" : "start"}`, {
         method: 'POST'
+    }).then(() => {
+        page.querySelector(".start-stop-idler").classList.remove("disabled");
     }).catch((e) => {
+        page.querySelector(".start-stop-idler").classList.remove("disabled");
         console.log(e)
-    })
+    });
+
 }
 
 function goToNextStreamer(name) {
@@ -121,6 +128,36 @@ async function updateLogs() {
         page.querySelector(".info-account .data").textContent = res.account;
         page.querySelector(".info-game .data").textContent = decodeURIComponent(res.game);
 
+        page.querySelector(".info-status").classList.forEach(function (e) {
+            if (e.toLowerCase().indexOf("bg-") != -1) {
+                page.querySelector(".info-status").classList.remove(e);
+            }
+
+        });
+
+        if (res.navigating) {
+            page.querySelector(".info-status .data").textContent = "Navigating";
+            page.querySelector(".info-status").classList.add("bg-warning");
+            page.querySelector(".info-status").setAttribute("data-status","navigating");
+            page.querySelector(".holdingImage").style.display = "none";
+            page.querySelector(".statusImage").style.display = "inline-block";
+        }
+        else if (res.running) {
+            page.querySelector(".info-status .data").textContent = "Running";
+            page.querySelector(".info-status").classList.add("bg-success");
+            page.querySelector(".info-status").classList.add("bg-success");
+            page.querySelector(".info-status").setAttribute("data-status","running");
+            page.querySelector(".holdingImage").style.display = "none";
+            page.querySelector(".statusImage").style.display = "inline-block";
+        }
+        else {
+            page.querySelector(".info-status .data").textContent = "Stopped";
+            page.querySelector(".info-status").classList.add("bg-danger");
+            page.querySelector(".info-status").setAttribute("data-status","stopped");
+            page.querySelector(".holdingImage").style.display = "inline-block";
+            page.querySelector(".statusImage").style.display = "none";
+        }
+
         let streamer = page.querySelector(".info-streamer .data");
         streamer.textContent = res.currentStreamer || "...";
         streamer.setAttribute("href", res.streamerLink || "");
@@ -147,6 +184,15 @@ async function updateLogs() {
             logArea.setAttribute("data-index", res.logs.length);
         }
 
+
+        page.querySelector(".start-stop-idler").setAttribute("data-running",res.running.toString());
+        page.querySelector(".start-stop-idler").classList.remove("btn-warning");
+        page.querySelector(".start-stop-idler").classList.remove("btn-danger");
+        page.querySelector(".start-stop-idler").classList.remove("btn-success");
+        page.querySelector(".start-stop-idler").classList.add(res.running ? "btn-danger": "btn-success");
+        page.querySelector(".start-stop-idler").textContent = res.running ? "Stop Idler": "Start Idler";
+
+
     }).catch((e) => {
         console.log(`Failed to get logs: ${e.message}`);
     });
@@ -158,6 +204,9 @@ async function updateImage() {
     if (!name) {
         return;
     }
+    var status = selectedIdlerPage().querySelector(".info-status").getAttribute("data-status");
+
+    if( status == "stopped" || status == undefined || status == null) return;
 
     //Make sure the last image has loaded so we don't flood the server
     if (imageLoadFinished) {
