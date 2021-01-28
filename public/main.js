@@ -62,6 +62,11 @@ function createNewTab(idler) {
 
         });
 
+    tabPage.querySelector(".stop-idler").addEventListener('click', () => {
+            stopIdler(name);
+
+        });
+
     //Set refresh button handler
     tabPage.querySelector(".refresh-logs-screenshot").addEventListener('click', () => {
         updateLogs();
@@ -76,6 +81,14 @@ function createNewTab(idler) {
 
 function editIdler(name) {
     alert(name);
+}
+
+function stopIdler(name) {
+    fetch(`${name}/stop`, {
+        method: 'POST'
+    }).catch((e) => {
+        console.log(e)
+    })
 }
 
 function goToNextStreamer(name) {

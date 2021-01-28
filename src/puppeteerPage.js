@@ -101,3 +101,10 @@ export async function preparePage(idler) {
     return idler.page;
 
 }
+
+export async function disposePage(idler)
+{
+    await idler.page.close();
+    idler.page = null;
+
+}

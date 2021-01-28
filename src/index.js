@@ -2,30 +2,14 @@ export const settings = {
     CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
     VIEWPORT_WIDTH: 1080,
     VIEWPORT_HEIGHT: 720
-}
+};
 
-import {
-    prepareBrowser,
-    preparePage
-}
-    from './puppeteerPage'
-import './webserver'
-import {
-    Idler
-}
-    from './idlers'
-import {
-    waitAsync
-}
-    from './utils'
+import { prepareBrowser } from './puppeteerPage';
+import { Idler } from './idlers';
 import fs from 'fs';
-
-export const idlers = [];
-//idlers.push(new Idler("siege", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
-idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true));
-//idlers.push(new Idler("siege2", "magictree", "legacy", "Tom%20Clancy's%20Rainbow%20Six%20Siege", true,["https://www.twitch.tv/fraser_"]));
-
-
+import path from 'path';
+import { waitAsync } from './utils';
+import './webserver';
 
 //Get the idler object by name
 export function getIdlersByName(name) {
@@ -34,6 +18,25 @@ export function getIdlersByName(name) {
             return idlers[i]
         }
     }
+}
+
+export const idlers = [];
+async function createIdlers() {
+    var usersFile = path.join(__dirname, '..', "userlogins", `users.json`);
+
+    //Do we have a file?
+    if (!fs.existsSync(usersFile)) { return false; }
+
+    //Process the file
+    const idlerData = require(usersFile);
+
+    idlerData.forEach(function (idler) {
+        idlers.push(new Idler(idler.name, idler.account, idler.type, idler.game, idler.autostart, idler.streamerList));
+    });
+
+
+    return true;
+
 }
 
 //Move mouse and swap tab every 10 seconds
@@ -50,47 +53,21 @@ async function keepIdlersAlive() {
 
 }
 
+
 main();
 
 async function main() {
 
+    //Create idlers 
+    await createIdlers();
+
     //Start the chrome browser
-    await prepareBrowser()
+    await prepareBrowser();
 
     //Create the required idlers
     idlers.forEach(async function (idler) {
-        try {
-            //Prepare the page
-            await preparePage(idler)
-
-            //Go to streamer
-            idler.goToLiveStreamer();
-
-            //Refresh
-            setInterval(async () => {
-
-                if (idler.currentStreamer == null)
-                    return;
-
-                // Watch for live status, and go to another streamer if needed
-                if (!(await idler.isPageOnValidStreamer())) {
-                    await idler.goToLiveStreamer();
-                }
-
-                // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
-                const msElapsed = Date.now() - idler.startTime;
-                if (msElapsed < 1000 * 60 * 60) {
-                    return;
-                }
-                await idler.hourReload();
-
-            }, 1000 * 60)
-
-            console.log(`Created page for ${idler.name} using account ${idler.account}`);
-        } catch (e) {
-            console.error(`Failed to create page -  ${idler.name} - ${e.message}`);
-        }
-
+        if (idler == null || !idler.autostart) return;
+        await idler.start();
     });
 
     keepIdlersAlive();

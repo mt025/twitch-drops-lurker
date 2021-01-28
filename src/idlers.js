@@ -1,4 +1,5 @@
 import path from 'path';
+import { preparePage, disposePage } from './puppeteerPage';
 import {
     waitAsync
 }
@@ -7,22 +8,31 @@ import {
 export class Idler {
 
     constructor(name, account, type, game, autostart, streamerList) {
-        this.page = null;
+        //Idler settings
         this.name = name;
         this.type = type;
         this.account = account;
         this.game = game;
         this.streamerList = streamerList;
+        this.autostart = autostart;
+
+        //Const
+        this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b';
+
+        //Dynamic
+        this.loadCookiesStoragePath();
+
+        //vars
+        this.page = null;
+        this.logs = [];
+
         this.currentStreamer = null;
         this.startTime = 0;
-        this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b';
-        this.loadCookiesStoragePath();
-        this.streamerLink = null;
-        this.logs = [];
-        this.autostart = autostart;
-        this.currentIndex = 0;
+
+        this.currentStreamerListIndex = 0;
         this.logindex = 0;
-        this.Navigating = false;
+        this.navigating = false;
+        this.runningID = null;
     }
 
     loadCookiesStoragePath() {
@@ -49,6 +59,54 @@ export class Idler {
             this.logs.shift()
     }
 
+    async start() {
+        try {
+            //Refresh
+            this.runningID = setInterval(async () => {
+
+                if (this.currentStreamer == null)
+                    return;
+
+                // Watch for live status, and go to another streamer if needed
+                if (!(await this.isPageOnValidStreamer())) {
+                    await this.goToLiveStreamer();
+                }
+
+                // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
+                const msElapsed = Date.now() - this.startTime;
+                if (msElapsed < 1000 * 60 * 60) {
+                    return;
+                }
+                await this.hourReload();
+
+            }, 1000 * 60)
+
+            //Prepare the page
+            await preparePage(this);
+
+            this.updateStatus(`✔️ Started idler`);
+
+            //Go to streamer
+            await this.goToLiveStreamer();
+
+
+        } catch (e) {
+            this.updateStatus(`❌ Failed to start idler`);
+        }
+    }
+
+    async stop() {
+        try {
+            clearInterval(this.runningID);
+            this.runningID = null;
+            disposePage(this);
+            this.updateStatus(`❌ Stopped idler`);
+
+        } catch (e) {
+            this.updateStatus(`❌ Failed to stop idler`);
+        }
+    }
+
     async keepAlive() {
         if (this.page == null) return;
 
@@ -68,7 +126,7 @@ export class Idler {
 
     async emulateClickAsync(selector) {
         if (this.page == null) return;
-        
+
         if (selector) {
             await this.page.click(selector, {
                 delay: 50 + Math.random() * 100
@@ -88,13 +146,13 @@ export class Idler {
 
     async goToLiveStreamer() {
         if (this.page == null) return;
-        
-        this.Navigating = true;
-        this.updateStatus('🔍 Looking for a streamer to watch');
-        this.currentStreamer = null;
-        this.streamerLink = null;
-        this.startTime = 0;
 
+        this.navigating = true;
+        this.currentStreamer = null;
+        this.startTime = 0;
+        this.updateStatus('🔍 Looking for a streamer to watch');
+
+        let streamerLink;
         //We are using a search term, rather than a list
         if (!this.streamerList) {
             let streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}?tl=${this.dropsEnabledTagID}`;
@@ -114,17 +172,19 @@ export class Idler {
                 return;
             }
 
-            this.streamerLink = streamHrefs[Math.floor(Math.random() * streamHrefs.length)];
+            streamerLink = streamHrefs[Math.floor(Math.random() * streamHrefs.length)];
+            this.currentStreamer = streamerLink.split('/').pop();
         } else {
             //We are using a streamer link list
-            let count = this.currentIndex++ % this.streamerList.length;
-            this.streamerLink = this.streamerList[count];
+            let count = this.currentStreamerListIndex++ % this.streamerList.length;
+            this.currentStreamer = this.streamerList[count];
+            streamerLink = `https://twitch.tv/${this.currentStreamer}`;
         }
 
-        this.currentStreamer = this.streamerLink.split('/').pop();
+
         this.startTime = Date.now();
 
-        await this.page.goto(this.streamerLink);
+        await this.page.goto(streamerLink);
 
         this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer);
         await waitAsync(2000);
@@ -137,7 +197,7 @@ export class Idler {
             console.log("failed to click");
 
         }
-        this.Navigating = false;
+        this.navigating = false;
     }
 
     async isPageOnValidStreamer() {

@@ -1,0 +1,16 @@
+[{
+    "name": "siegeBot",
+    "game": "Tom%20Clancy's%20Rainbow%20Six%20Siege",
+    "type": "legacy",
+    "account": "accountname",
+    "autostart": true,
+    "streamerList" : null
+},
+{
+    "name": "rustBot",
+    "game": "Rust",
+    "type": "new",
+    "account": "accountname",
+    "autostart": true,
+    "streamerList" : ["Rubius", "juansguarnizo", "Mizkif"]
+}]
