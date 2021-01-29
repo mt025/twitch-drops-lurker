@@ -1,7 +1,7 @@
 import path from 'path';
 import { preparePage, disposePage } from './puppeteerPage';
 import { waitAsync, generateRandomString } from './utils';
-import { settings } from './index'
+import { settings, accounts } from './index'
 
 export class Idler {
 
@@ -9,8 +9,9 @@ export class Idler {
         //Idler default settings
         this.name = "Unnamed-" + generateRandomString(4);
         this.type = "new";
-        //TODO This should default to first acccount
-        this.account = null;
+        
+        this.account = (accounts.length > 0) ? accounts[0] : null;
+
         this.game = null;
         this.streamerList = null;
         this.autostart = false;

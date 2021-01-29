@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
-import { idlers, getIdlersByName, settings } from './index';
+import { idlers, getIdlersByName, settings, accounts } from './index';
 import fs from 'fs';
 
 const app = express();
@@ -14,7 +14,7 @@ app.get('/health', (req, res) => res.status(200).send('ok'));
 app.get('/settings', function (req, res) {
     var finalOut = {};
     finalOut.settings = settings;
-    finalOut.accounts = {}; //Make dis
+    finalOut.accounts = accounts; 
     finalOut.idlers = idlers;
     
     res.set('Content-Type', 'application/json')

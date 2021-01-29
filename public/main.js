@@ -76,6 +76,9 @@ function createNewTab(idler) {
     tabPage.querySelector(".interval-spinner").value = 60 / (imageIntervalTime * 0.001);
 
     var idlerModal = document.getElementById('createEditIdler')
+
+
+
     idlerModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget
         var name = button.getAttribute('data-bs-edit');
@@ -89,9 +92,11 @@ function createNewTab(idler) {
 
 }
 
-function editIdler(name) {
-    alert(name);
+function saveIdler(){
+    alert("Save");
+
 }
+
 
 function stopStartIdler(name) {
     var page = selectedIdlerPage();
@@ -252,6 +257,34 @@ function sendMouseClick(x, y, name) {
     })
 }
 
+function prepareCreateEditModal(accounts){
+    var model = document.querySelector("#createEditIdler");
+
+    accounts.forEach(function(e){
+        model.querySelector("#form-account").insertAdjacentHTML('beforeend',`<option>${e}</option>`);
+    });
+    
+    model.querySelector("#form-gamename-checkbox").addEventListener('change',function(e){
+        if(model.querySelector("#form-gamename-checkbox").checked){
+            model.querySelector("#form-gamename").value = "";
+            model.querySelector("#form-gamename").setAttribute("placeholder","");
+            model.querySelector("#form-gamename").setAttribute("disabled","true");
+        }
+        else{
+            model.querySelector("#form-gamename").setAttribute("placeholder",model.querySelector("#form-gamename").getAttribute("data-placeholder"));
+            model.querySelector("#form-gamename").removeAttribute("disabled");
+        }
+        
+    });
+
+    model.querySelector("#saveButton").addEventListener('click',saveIdler);
+
+
+}
+
+
+//Start
+
 document.getElementById('killButton').addEventListener('click', () => {
 
     var exit = confirm("Are you sure you want to stop the twitch-drops-lurker process?");
@@ -271,6 +304,7 @@ fetch('settings').then(r => r.json()).then(res => {
     height = res.settings.VIEWPORT_HEIGHT;
     width = res.settings.VIEWPORT_WIDTH;
     res.idlers.forEach(createNewTab);
+    prepareCreateEditModal(res.accounts)
 
 }).catch((e) => {
     console.log(e)

@@ -88,7 +88,7 @@ body{
 
 .settings .btn-sm{
 	padding: 1px 10px;
-		font-size:0.75rem;
+	font-size:0.75rem;
 	
 }
 
@@ -98,3 +98,27 @@ body{
 	
 }
 
+#createEditIdler form .row{
+	border-bottom:1px solid #ddd;
+	padding:10px 0px;
+}
+
+#createEditIdler .modal-dialog{
+	max-width:750px;
+}
+
+#createEditIdler .modal-body{
+	padding:0rem 1rem;
+}
+
+#createEditIdler label{
+
+	user-select: none;
+}
+
+#createEditIdler .form-check-label{
+	font-size: .875rem;
+	vertical-align: super;
+	
+
+}

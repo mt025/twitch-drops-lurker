@@ -2,11 +2,11 @@ export const settings = {
     CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
     VIEWPORT_WIDTH: 1080,
     VIEWPORT_HEIGHT: 720,
-    DROPS_ENABLED_TAGID:  'c2542d6d-cd10-4532-919b-3d19f30a768b'
+    DROPS_ENABLED_TAGID: 'c2542d6d-cd10-4532-919b-3d19f30a768b'
 };
 
 import { prepareBrowser } from './puppeteerPage';
-import { Idler } from './idlers';
+import { Idler } from './idler';
 import fs from 'fs';
 import path from 'path';
 import { waitAsync } from './utils';
@@ -20,6 +20,26 @@ export function getIdlersByName(name) {
         }
     }
 }
+
+export const accounts = [];
+async function populateAccounts() {
+    var accountPath = path.join(__dirname, '..', "userlogins");
+
+    fs.readdir(accountPath, (err, files) => {
+        if (err) {
+            throw err;
+        }
+        files.forEach(file => {
+            if (file.toLowerCase().indexOf("_cookies.json") != -1) {
+                accounts.push(file.split("_")[0].toLowerCase());
+            }
+
+        });
+    });
+}
+
+
+
 
 export const idlers = [];
 async function createIdlers() {
@@ -63,6 +83,9 @@ async function keepIdlersAlive() {
 main();
 
 async function main() {
+
+    //Populate accounts
+    await populateAccounts();
 
     //Start the chrome browser
     await prepareBrowser();

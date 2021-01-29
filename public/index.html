@@ -20,7 +20,8 @@
             <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab"
                     aria-controls="v-pills-home" aria-selected="true">🏠 Home</a>
-                <a class="nav-link btn btn-success" id="addIdler" data-bs-toggle="modal" data-bs-target="#createEditIdler">➕ Add New Idler</a>
+                <a class="nav-link btn btn-success" id="addIdler" data-bs-toggle="modal"
+                    data-bs-target="#createEditIdler">➕ Add New Idler</a>
                 <a class="nav-link btn btn-danger" id="killButton">❌ Stop Process</a>
             </div>
             <div class="tab-content" id="v-pills-tabContent">
@@ -71,7 +72,8 @@
                     <div class='settings'>
                         <button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
                         <button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
-                        <button type="button" class="btn btn-danger btn-sm edit-idler" data-bs-toggle="modal" data-bs-target="#createEditIdler">Edit Idler</button>
+                        <button type="button" class="btn btn-danger btn-sm edit-idler" data-bs-toggle="modal"
+                            data-bs-target="#createEditIdler">Edit Idler</button>
                         <button type="button" class="btn btn-warning btn-sm start-stop-idler">Start/Stop Idler</button>
                         <div class='interval'>
                             Frames per minute:
@@ -88,38 +90,99 @@
 
 
     <div class="modal" id="createEditIdler" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog" >
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Modal title</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              Name: <input></input> 
-              Game: <input></input>
-              Type: 
-              <select>
-                <option>new</option>
-                <option>legacy</option>
-                <option>none</option>
-              </select>
-              Account:
-              <select>
-                  <option>None</option>
-              </select>
-              Autostart <input type="checkbox"/>
-              streamerList <textarea></textarea>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-botname">Bot
+                                Name:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="form-botname"
+                                    placeholder="Nickname for your bot - SiegeBot"
+                                    title="Nickname for your bot - SiegeBot" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-gamename">Game
+                                name:</label>
+                            <div class="col-sm-10">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-text">
+                                        <input class="form-check-input" type="checkbox" id="form-gamename-checkbox" autocomplete="off"><label for="form-gamename-checkbox">&nbsp;&nbsp;Any game</label>
+                                    </div>
+                                    <input type="text" class="form-control form-control-sm" id="form-gamename"
+                                        placeholder="Name of the game you wish to idle - Tom Clancy's Rainbow Six Siege"
+                                        data-placeholder="Name of the game you wish to idle - Tom Clancy's Rainbow Six Siege"
+                                        title="Name of the game you wish to idle - Tom Clancy's Rainbow Six Siege"
+                                        autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-type">Bot Type:</label>
+                            <div class="col-sm-10">
+                                <select class="form-select form-select-sm" id="form-type"  autocomplete="off">
+                                    <option selected>New</option>
+                                    <option>Legacy</option>
+                                    <option>None</option>
+                                </select>
+                            </div>
+                        </div>
 
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-account">Account:</label>
+                            <div class="col-sm-10">
+                                <select class="form-select form-select-sm" id="form-account"  autocomplete="off"></select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-botname">Streamer List:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control form-control-sm" id="form-botname"
+                                    placeholder="Streamers to idle, each streamer on a new line. Leave blank for all streamers  - bikinibodhi"
+                                    title="Streamers to idle, each streamer on a new line. Leave blank for all streamers - bikinibodhi" autocomplete="off"></textarea>
+                            </div>
+                        </div>
+
+
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-autostart">Autostart:</label>
+                            <div class="col-sm-10">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="form-autostart" checked autocomplete="off">
+                                    <label class="form-check-label .col-form-label-sm" checked for="form-autostart">Automatically start idler when application starts</label>
+                                  </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-1">
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-points">Channel Points:</label>
+                            <div class="col-sm-10">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" autocomplete="off" id="form-points">
+                                    <label class="form-check-label .col-form-label-sm" for="form-points">Automaticly claim bonus channel points</label>
+                                  </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveButton">Save changes</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 
-      
+
 
 </body>
 
