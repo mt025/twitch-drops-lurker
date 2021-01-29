@@ -1,23 +1,20 @@
 import path from 'path';
 import { preparePage, disposePage } from './puppeteerPage';
-import {
-    waitAsync
-}
-    from './utils';
+import { waitAsync, generateRandomString } from './utils';
+import { settings } from './index'
 
 export class Idler {
 
-    constructor(name, account, type, game, autostart, streamerList) {
-        //Idler settings
-        this.name = name;
-        this.type = type;
-        this.account = account;
-        this.game = game;
-        this.streamerList = streamerList;
-        this.autostart = autostart;
-
-        //Const
-        this.dropsEnabledTagID = 'c2542d6d-cd10-4532-919b-3d19f30a768b';
+    constructor() {
+        //Idler default settings
+        this.name = "Unnamed-" + generateRandomString(4);
+        this.type = "new";
+        //TODO This should default to first acccount
+        this.account = null;
+        this.game = null;
+        this.streamerList = null;
+        this.autostart = false;
+        this.channelPoints = false;
 
         //vars
         this.page = null;
@@ -29,30 +26,25 @@ export class Idler {
         this.currentStreamerListIndex = 0;
         this.logindex = 0;
         this.navigating = false;
-        
+
         this.running = null;
 
         //Dynamic
-        this.loadCookiesStoragePath();
-    }
-
-    loadCookiesStoragePath() {
-        this.cookies = path.join(__dirname, '..', "userlogins", `${this.account}_cookies.json`);
-        this.storage = path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
+        this.cookies = () => path.join(__dirname, '..', "userlogins", `${this.account}_cookies.json`);
+        this.storage = () => path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
     }
 
     updateStatus(status, includedLink) {
         let date = new Date();
-        status = date.getHours().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })
+        let timeStamp = date.getHours().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })
             + ":"
-            + date.getMinutes().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false })
-            + ": "
-            + status;
+            + date.getMinutes().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
 
-        console.debug(`${this.name} - ${status}`);
+
+        console.debug(`${timeStamp}: ${this.name} - ${status}`);
         this.logs.push({
             index: this.logindex++,
-            status,
+            status: timeStamp + ": " + status,
             includedLink
         });
 
@@ -64,30 +56,27 @@ export class Idler {
         try {
 
             //Stop it first if its already running
-            if(this.page != null) this.stop();
+            if (this.page != null) this.stop();
             this.navigating = true;
             //Refresh
             this.running = setInterval(async () => {
 
-                if (this.currentStreamer == null)
-                    return;
+                //Not currently watching
+                if (this.currentStreamer == null) return;
 
                 // Watch for live status, and go to another streamer if needed
-                if (!(await this.isPageOnValidStreamer())) {
-                    await this.goToLiveStreamer();
-                }
+                if (!(await this.isPageOnValidStreamer())) { await this.goToLiveStreamer(); return; }
 
                 // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
-                const msElapsed = Date.now() - this.startTime;
-                if (msElapsed < 1000 * 60 * 60) {
-                    return;
-                }
-                await this.hourReload();
+                if (!((Date.now() - this.startTime) < 1000 * 60 * 60)) { await this.hourReload(); return; }
+
+                //Claim channel points
+                if (this.channelPoints) { await this.claimChannelPoints(); }
 
             }, 1000 * 60)
 
             this.updateStatus(`✔️ Started idler`);
-            
+
             //Prepare the page
             await preparePage(this);
 
@@ -96,7 +85,13 @@ export class Idler {
 
 
         } catch (e) {
-            this.updateStatus(`❌ Failed to start idler`);
+            clearInterval(this.running);
+            this.running = null;
+            this.navigating = false;
+            this.currentStreamer = null;
+            this.startTime = 0;
+            disposePage(this);
+            this.updateStatus(`❌ Failed to start idler ${e.message}`);
         }
     }
 
@@ -114,6 +109,27 @@ export class Idler {
             this.updateStatus(`❌ Failed to stop idler`);
         }
     }
+
+    async claimChannelPoints() {
+        if (this.page == null || this.currentStreamer == null || this.navigating) return;
+
+        const claimPoints = await this.page.$('.claimable-bonus__icon');
+        if (claimPoints) {
+            var idler = this;
+            setTimeout(function () {
+
+                idler.page.evaluate(_ => {
+                        document.querySelector(".claimable-bonus__icon").click();
+                  });
+
+                idler.updateStatus(`🗳️ Claimed bonus points for ${idler.currentStreamer}`, idler.currentStreamer);
+            }, Math.random() * 4000);
+
+
+        }
+
+    }
+
 
     async keepAlive() {
         if (this.page == null) return;
@@ -163,7 +179,7 @@ export class Idler {
         let streamerLink;
         //We are using a search term, rather than a list
         if (!this.streamerList) {
-            let streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}?tl=${this.dropsEnabledTagID}`;
+            let streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}?tl=${settings.DROPS_ENABLED_TAGID}`;
 
             if (this.type == "legacy") {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}`;
@@ -197,7 +213,7 @@ export class Idler {
         this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer);
         await waitAsync(2000);
 
-        // Sometimes it shows a click to unmute overlay. TODO: Investigate a better way to fix, maybe with cookies or localStorage
+        // Sometimes it shows a click to unmute overlay. Investigate a better way to fix, maybe with cookies or localStorage
         //TODO look into this
         try {
             await this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]');
@@ -222,10 +238,12 @@ export class Idler {
         }
 
         //TODO Catch eval errors
-        const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
-        if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`, this.currentStreamer);
-            return false;
+        if (this.game) {
+            const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
+            if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
+                this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`, this.currentStreamer);
+                return false;
+            }
         }
 
         let dropsEnabled = true;

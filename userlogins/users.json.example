@@ -4,7 +4,8 @@
     "type": "legacy",
     "account": "accountname",
     "autostart": true,
-    "streamerList" : null
+    "streamerList" : null,
+    "channelPoints": false
 },
 {
     "name": "rustBot",
@@ -12,5 +13,6 @@
     "type": "new",
     "account": "accountname",
     "autostart": true,
-    "streamerList" : ["Rubius", "juansguarnizo", "Mizkif"]
+    "streamerList" : ["Rubius", "juansguarnizo", "Mizkif"],
+    "channelPoints" : false
 }]

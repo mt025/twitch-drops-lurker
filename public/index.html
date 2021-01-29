@@ -20,7 +20,7 @@
             <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab"
                     aria-controls="v-pills-home" aria-selected="true">🏠 Home</a>
-                <a class="nav-link btn btn-success" id="addIdler">➕ Add New Idler</a>
+                <a class="nav-link btn btn-success" id="addIdler" data-bs-toggle="modal" data-bs-target="#createEditIdler">➕ Add New Idler</a>
                 <a class="nav-link btn btn-danger" id="killButton">❌ Stop Process</a>
             </div>
             <div class="tab-content" id="v-pills-tabContent">
@@ -28,6 +28,12 @@
                     aria-labelledby="v-pills-home-tab">
                     <h1> Welcome </h1>
                     <p>Welcome to twitch-drops-lurker.</p>
+
+                    <h2> Idlers </h2>
+
+                    <h2> Accounts </h2>
+
+
 
                 </div>
             </div>
@@ -65,7 +71,7 @@
                     <div class='settings'>
                         <button type="button" class="btn btn-primary btn-sm next-streamer">Goto Next Streamer ></button>
                         <button type="button" class="btn btn-primary btn-sm refresh-logs-screenshot">Refresh</button>
-                        <button type="button" class="btn btn-danger btn-sm edit-idler">Edit Idler</button>
+                        <button type="button" class="btn btn-danger btn-sm edit-idler" data-bs-toggle="modal" data-bs-target="#createEditIdler">Edit Idler</button>
                         <button type="button" class="btn btn-warning btn-sm start-stop-idler">Start/Stop Idler</button>
                         <div class='interval'>
                             Frames per minute:
@@ -79,6 +85,42 @@
             </div>
         </div>
     </template>
+
+
+    <div class="modal" id="createEditIdler" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog" >
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Modal title</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Name: <input></input> 
+              Game: <input></input>
+              Type: 
+              <select>
+                <option>new</option>
+                <option>legacy</option>
+                <option>none</option>
+              </select>
+              Account:
+              <select>
+                  <option>None</option>
+              </select>
+              Autostart <input type="checkbox"/>
+              streamerList <textarea></textarea>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
 </body>
 
 </html>

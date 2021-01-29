@@ -1,7 +1,8 @@
 export const settings = {
     CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
     VIEWPORT_WIDTH: 1080,
-    VIEWPORT_HEIGHT: 720
+    VIEWPORT_HEIGHT: 720,
+    DROPS_ENABLED_TAGID:  'c2542d6d-cd10-4532-919b-3d19f30a768b'
 };
 
 import { prepareBrowser } from './puppeteerPage';
@@ -30,10 +31,15 @@ async function createIdlers() {
     //Process the file
     const idlerData = require(usersFile);
 
-    idlerData.forEach(function (idler) {
-        idlers.push(new Idler(idler.name, idler.account, idler.type, idler.game, idler.autostart, idler.streamerList));
+    idlerData.forEach(async function (idler) {
+        var idlerObj = Object.assign(new Idler(), idler);
+        idlers.push(idlerObj);
+
+        if (idlerObj == null || !idlerObj.autostart) return;
+        await idlerObj.start();
     });
 
+    keepIdlersAlive();
 
     return true;
 
@@ -58,18 +64,10 @@ main();
 
 async function main() {
 
-    //Create idlers 
-    await createIdlers();
-
     //Start the chrome browser
     await prepareBrowser();
 
-    //Create the required idlers
-    idlers.forEach(async function (idler) {
-        if (idler == null || !idler.autostart) return;
-        await idler.start();
-    });
-
-    keepIdlersAlive();
+    //Create idlers 
+    await createIdlers();
 
 }

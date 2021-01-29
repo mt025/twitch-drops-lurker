@@ -11,17 +11,19 @@ app.use(express.static('public'));
 
 app.get('/health', (req, res) => res.status(200).send('ok'));
 
-app.get('/idlers', function (req, res) {
+app.get('/settings', function (req, res) {
+    var finalOut = {};
+    finalOut.settings = settings;
+    finalOut.accounts = {}; //Make dis
+    finalOut.idlers = idlers;
+    
     res.set('Content-Type', 'application/json')
-    res.send(JSON.stringify(idlers, function replacer(key, value) {
-        if (key == 'page') {return undefined};
+    res.send(JSON.stringify(finalOut, function replacer(key, value) {
+        if (key == 'page') {return undefined;};
+        if (key == 'logs') {return undefined;};
         if (key == 'running'){return value != null;}
         return value;
     }));
-});
-
-app.get('/settings', function (req, res) {
-    res.json(settings);
 });
 
 

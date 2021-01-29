@@ -57,10 +57,8 @@ function createNewTab(idler) {
     });
 
     //Set edit idler button handler
-    tabPage.querySelector(".edit-idler").addEventListener('click', () => {
-        editIdler(name);
 
-    });
+    tabPage.querySelector(".edit-idler").setAttribute("data-bs-edit", name);
 
     tabPage.querySelector(".start-stop-idler").addEventListener('click', () => {
         stopStartIdler(name);
@@ -76,6 +74,19 @@ function createNewTab(idler) {
     //Update page info
     tabPage.querySelector(".info-bot .data").textContent = name;
     tabPage.querySelector(".interval-spinner").value = 60 / (imageIntervalTime * 0.001);
+
+    var idlerModal = document.getElementById('createEditIdler')
+    idlerModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget
+        var name = button.getAttribute('data-bs-edit');
+        
+        idlerModal.querySelector('.modal-title').textContent = (name ? `Edit Idler - ${name}` : "Create New Idler");
+
+    
+    })
+
+
+
 }
 
 function editIdler(name) {
@@ -85,7 +96,7 @@ function editIdler(name) {
 function stopStartIdler(name) {
     var page = selectedIdlerPage();
     var running = page.querySelector(".start-stop-idler").getAttribute("data-running");
-    if(running == undefined || running == null) {return;}
+    if (running == undefined || running == null) { return; }
     page.querySelector(".start-stop-idler").classList.add("disabled");
     fetch(`${name}/${running === "true" ? "stop" : "start"}`, {
         method: 'POST'
@@ -126,7 +137,7 @@ async function updateLogs() {
         var page = selectedIdlerPage();
         page.querySelector(".info-bot .data").textContent = res.name;
         page.querySelector(".info-account .data").textContent = res.account;
-        page.querySelector(".info-game .data").textContent = decodeURIComponent(res.game);
+        page.querySelector(".info-game .data").textContent = res.game ? decodeURIComponent(res.game) : "Any";
 
         page.querySelector(".info-status").classList.forEach(function (e) {
             if (e.toLowerCase().indexOf("bg-") != -1) {
@@ -138,7 +149,7 @@ async function updateLogs() {
         if (res.navigating) {
             page.querySelector(".info-status .data").textContent = "Navigating";
             page.querySelector(".info-status").classList.add("bg-warning");
-            page.querySelector(".info-status").setAttribute("data-status","navigating");
+            page.querySelector(".info-status").setAttribute("data-status", "navigating");
             page.querySelector(".holdingImage").style.display = "none";
             page.querySelector(".statusImage").style.display = "inline-block";
         }
@@ -146,14 +157,14 @@ async function updateLogs() {
             page.querySelector(".info-status .data").textContent = "Running";
             page.querySelector(".info-status").classList.add("bg-success");
             page.querySelector(".info-status").classList.add("bg-success");
-            page.querySelector(".info-status").setAttribute("data-status","running");
+            page.querySelector(".info-status").setAttribute("data-status", "running");
             page.querySelector(".holdingImage").style.display = "none";
             page.querySelector(".statusImage").style.display = "inline-block";
         }
         else {
             page.querySelector(".info-status .data").textContent = "Stopped";
             page.querySelector(".info-status").classList.add("bg-danger");
-            page.querySelector(".info-status").setAttribute("data-status","stopped");
+            page.querySelector(".info-status").setAttribute("data-status", "stopped");
             page.querySelector(".holdingImage").style.display = "inline-block";
             page.querySelector(".statusImage").style.display = "none";
         }
@@ -185,12 +196,12 @@ async function updateLogs() {
         }
 
 
-        page.querySelector(".start-stop-idler").setAttribute("data-running",res.running.toString());
+        page.querySelector(".start-stop-idler").setAttribute("data-running", res.running.toString());
         page.querySelector(".start-stop-idler").classList.remove("btn-warning");
         page.querySelector(".start-stop-idler").classList.remove("btn-danger");
         page.querySelector(".start-stop-idler").classList.remove("btn-success");
-        page.querySelector(".start-stop-idler").classList.add(res.running ? "btn-danger": "btn-success");
-        page.querySelector(".start-stop-idler").textContent = res.running ? "Stop Idler": "Start Idler";
+        page.querySelector(".start-stop-idler").classList.add(res.running ? "btn-danger" : "btn-success");
+        page.querySelector(".start-stop-idler").textContent = res.running ? "Stop Idler" : "Start Idler";
 
 
     }).catch((e) => {
@@ -206,7 +217,7 @@ async function updateImage() {
     }
     var status = selectedIdlerPage().querySelector(".info-status").getAttribute("data-status");
 
-    if( status == "stopped" || status == undefined || status == null) return;
+    if (status == "stopped" || status == undefined || status == null) return;
 
     //Make sure the last image has loaded so we don't flood the server
     if (imageLoadFinished) {
@@ -255,17 +266,12 @@ document.getElementById('killButton').addEventListener('click', () => {
 
 })
 
-//get all idlers
-fetch('idlers').then(r => r.json()).then(res => {
-    res.forEach(createNewTab);
-
-}).catch((e) => {
-    console.log(e)
-})
-
+//Update settings and populate idlers
 fetch('settings').then(r => r.json()).then(res => {
-    height = res.VIEWPORT_HEIGHT;
-    width = res.VIEWPORT_WIDTH;
+    height = res.settings.VIEWPORT_HEIGHT;
+    width = res.settings.VIEWPORT_WIDTH;
+    res.idlers.forEach(createNewTab);
+
 }).catch((e) => {
     console.log(e)
 })

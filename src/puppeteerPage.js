@@ -16,7 +16,7 @@ const chromeArgs = [
     '--proxy-server="direct://"', //Disable Proxy Servers, can cause headless time to increase
     '--proxy-bypass-list=*', //Disable Proxy Servers, can cause headless time to increase
     '--no-proxy-server', //Disable Proxy Servers, can cause headless time to increase
-    //'--blink-settings=imagesEnabled=false', //Disable Images, TODO: make this an option to user
+    //TODO make this an option to user'--blink-settings=imagesEnabled=false', // Disable Images,  
     '--no-sandbox', //Disable sandboxing
     '--disable-setuid-sandbox', //Disables setuid sandbox
     '--no-zygote', //Disable zygote sandbox
@@ -28,10 +28,12 @@ const chromeArgs = [
     '--disable-dev-shm-usage', //The /dev/shm partition is too small in certain VM environments, causing Chrome to fail or crash
     '--hide-scrollbars', //Hide scrollbars from screenshots
     '--mute-audio', //Mutes device audio
-    '--no-first-run', //Disables first run tasks - TODO: TEST
+    //TODO Test this
+    '--no-first-run', // Disables first run tasks
     '--disable-breakpad', //Disables the crash reporting,
     '--disable-background-media-suspend', //Keep media running in background tabs
-    "--process-per-tab" //Keep all tabs active
+    //TODO Keep this?
+    //"--process-per-tab" //Keep all tabs active
 ];
 
 if (headless) {
@@ -60,11 +62,13 @@ export async function prepareBrowser() {
 
 export async function preparePage(idler) {
 
-    if (!fs.existsSync(idler.cookies) || !fs.existsSync(idler.storage)) {
-        throw new Error(`${idler.account}_cookies.json or ${idler.account}_localStorage.json not found. Please check README for installation instructions`)
+    var cookies = idler.cookies();
+    var storage = idler.storage();
+    if (!fs.existsSync(cookies) || !fs.existsSync(storage)) {
+        throw new Error(`${cookies} or ${storage} not found. Please check README for installation instructions`)
     }
-    const savedCookies = require(idler.cookies);
-    const savedLocalStorage = require(idler.storage);
+    const savedCookies = require(cookies);
+    const savedLocalStorage = require(storage);
 
     //Setup page
     idler.page = await browser.newPage();
@@ -104,7 +108,15 @@ export async function preparePage(idler) {
 
 export async function disposePage(idler)
 {
-    await idler.page.close();
-    idler.page = null;
+    if(idler.page == null) return;
+    try{
+        await idler.page.close();
+        idler.page = null;
+    }
+    catch (e){
+
+
+    }
+    
 
 }
