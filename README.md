@@ -21,8 +21,8 @@ This allows you to idle twitch headless without having an additional window open
 - <b>Name</b> - Name of the bot only use `(A-Z,a-z,0-9,_,-)`, no spaces
 - <b>Game Name</b> - Name of the game you wish to idle. Check the box to idle any game. Used for search and to validate the streamer is still playing the specified game. Names should be as they appear on twitch. e.g. `Tom Clancy's Rainbow Six Siege`
 - <b>Bot Drops Type</b> - Used to make sure you are still watching a stream that is dropping
-	- New: for games tagged as 'drops enabled' ![Screenshot showing edit](screenshot_new.png)
-	- Legacy: Older style without tag but with a message under the stream 'Drops enabled! Watch for a chance to earn loot.' ![Screenshot showing edit](screenshot_legacy.png)
+	- New: for games tagged as 'drops enabled' ![Screenshot showing new drop type](screenshot_new.png)
+	- Legacy: Older style without tag but with a message under the stream: ![Screenshot showing Drops enabled! Watch for a chance to earn loot](screenshot_legacy.png)
 	- None: Ignore drop status
 - <b>Account</b> - Selected account to use to idle for this bot as created in step 4-5 above
 - <b>Streamer list</b> - A list of stramer names to idle, rather than finding a random streamer, split by new line
