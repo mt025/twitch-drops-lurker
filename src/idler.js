@@ -181,15 +181,17 @@ export class Idler {
 
             let streamsDirectoryUrl;
 
+            //Look for all games or just 1 game
             if (this.attr.game == null || this.attr.game == "") {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/all`;
-
             }
-            else if (this.attr.type == "new") {
-                streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}?tl=${settings.DROPS_ENABLED_TAGID}`;
-            }
-            else {
+            else{
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}`;
+            }
+
+            //If its new type drops only look for streams with drops tag enabled
+            if (this.attr.type == "new") {
+                streamsDirectoryUrl += `?tl=${settings.DROPS_ENABLED_TAGID}`;
             }
 
             await this.page.goto(streamsDirectoryUrl, {
