@@ -1,21 +1,19 @@
 import path from 'path';
 import { preparePage, disposePage } from './puppeteerPage';
-import { waitAsync, generateRandomString } from './utils';
+import { waitAsync } from './utils';
 import { settings, accounts } from './index'
 
 export class Idler {
 
     constructor() {
+        //name
+        //type
+        //account
+        //game
+        //streamerList
+        //autostart
+        //channelPoints
         this.attr = {};
-
-        //Idler default settings
-        this.attr.name = "Unnamed-" + generateRandomString(4);
-        this.attr.type = "new";
-        this.attr.account = (accounts.length > 0) ? accounts[0] : null;
-        this.attr.game = null;
-        this.attr.streamerList = null;
-        this.attr.autostart = false;
-        this.attr.channelPoints = false;
 
         //vars
         this.page = null;

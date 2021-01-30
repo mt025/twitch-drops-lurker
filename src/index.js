@@ -9,7 +9,7 @@ import { prepareBrowser } from './puppeteerPage';
 import { Idler } from './idler';
 import fs from 'fs';
 import path from 'path';
-import { waitAsync } from './utils';
+import { waitAsync, generateRandomString } from './utils';
 import './webserver';
 
 //Get the idler object by name
@@ -52,9 +52,20 @@ async function createIdlers() {
     const idlerData = require(usersFile);
 
     idlerData.forEach(async function (idler) {
+        let template = {};
+
+        //Idler default settings
+        template.name = "Unnamed-" + generateRandomString(4);
+        template.type = "new";
+        template.account = (accounts.length > 0) ? accounts[0] : null;
+        template.game = null;
+        template.streamerList = null;
+        template.autostart = false;
+        template.channelPoints = false;
+
         let attrObj = {};
-        attrObj.attr = idler;
-        var idlerObj = Object.assign(new Idler(), idler);
+        attrObj.attr = Object.assign(template, idler);
+        var idlerObj = Object.assign(new Idler(), attrObj);
         idlers.push(idlerObj);
 
         if (idlerObj == null || !idlerObj.attr.autostart) return;

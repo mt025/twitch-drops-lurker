@@ -1,10 +1,10 @@
-let height = 1080;
+// let height = 1080;
 let width = 720;
 
 let imageLoadFinished = true;
 
 let logIntervalTime = 1000;
-let imageIntervalTime = localStorage.getItem("imageIntervalTime") ? parseInt(localStorage.getItem("imageIntervalTime")) : 5000;
+let imageIntervalTime = localStorage.getItem("imageIntervalTime") ? parseInt(localStorage.getItem("imageIntervalTime")) : 1000;
 
 let logsInterval = setInterval(updateLogs, logIntervalTime);
 let imageInterval = setInterval(updateImage, imageIntervalTime);
@@ -13,6 +13,8 @@ let selectedIdlerName = () => selectedIdlerButton().getAttribute("data-name");
 let selectedIdlerButton = () => document.querySelector('#mainTabs .nav-link.active');
 let selectedIdlerPage = () => document.querySelector('#mainTabs .tab-pane.active');
 
+let stripTags = /<\/?[^>]+(>|$)/g;
+
 function createNewTab(idler) {
     var name = idler.attr.name;
 
@@ -20,7 +22,7 @@ function createNewTab(idler) {
     document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', `<a class="nav-link" data-name="${name}" id="v-pills-${name}-tab" data-bs-toggle="pill" href="#v-pills-${name}" role="tab" aria-controls="v-pills-${name}" aria-selected="true">Idler: ${name}</a>`)
 
     // create the tab content
-    document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', `<div class="tab-pane fade" data-name="${name}" id="v-pills-${name}" role="tabpanel" aria-labelledby="v-pills-${name}-tab"></div>`)
+    document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', `<div class="tab-pane" data-name="${name}" id="v-pills-${name}" role="tabpanel" aria-labelledby="v-pills-${name}-tab"></div>`)
 
     var temp = document.querySelector("#idlerContent");
     var cloneNode = temp.content.cloneNode(true);
@@ -82,18 +84,144 @@ function createNewTab(idler) {
     idlerModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget
         var name = button.getAttribute('data-bs-edit');
-        
+        setOrClearForm();
         idlerModal.querySelector('.modal-title').textContent = (name ? `Edit Idler - ${name}` : "Create New Idler");
-
-    
+        idlerModal.querySelector("#form-lastbotname").value = (name ? name : "");
+        idlerModal.querySelector("#deleteButton").style.display = (name ? "" : "none");
+        if (name) loadForm(name);
     })
 
+    // idlerModal.addEventListener('hide.bs.modal', function (event) {
+    //     hideAlert();
+    // })
+}
 
+function setOrClearForm(idler) {
+    document.querySelector("#form-lastbotname").value = idler ? idler.name : "";
+    document.querySelector("#form-botname").value = idler ? idler.name : "";
+    document.querySelector("#form-gamename").value = idler ? idler.game : "";
+    document.querySelector("#form-type").value = idler ? idler.type : "";
+    document.querySelector("#form-autostart").checked = idler ? idler.autostart : "";
+    document.querySelector("#form-points").checked = idler ? idler.channelPoints : "";
+
+    document.querySelector("#form-gamename-checkbox").checked = false;
+    document.querySelector("#form-gamename").setAttribute("placeholder", document.querySelector("#form-gamename").getAttribute("data-placeholder"));
+    document.querySelector("#form-gamename").removeAttribute("disabled");
+    document.querySelector("#form-gamename").setAttribute("data-last-game", "");
+
+    if (idler && (idler.game == null || idler.game == "")) {
+        document.querySelector("#form-gamename-checkbox").checked = true;
+        document.querySelector("#form-gamename").setAttribute("placeholder", "");
+        document.querySelector("#form-gamename").setAttribute("disabled", true);
+    }
+
+    document.querySelector("#form-streamer").value = "";
+    document.querySelector("#form-streamer").setAttribute("placeholder", document.querySelector("#form-streamer").getAttribute("data-placeholder"));
+    document.querySelector("#form-streamer").setAttribute("data-last-streamer", "");
+    document.querySelector("#form-streamer").removeAttribute("disabled");
+    document.querySelector("#form-streamer-checkbox").checked = false;
+
+    if (idler) {
+        if (idler.streamerList == null || idler.streamerList.length == 0) {
+            document.querySelector("#form-streamer").setAttribute("placeholder", "");
+            document.querySelector("#form-streamer").setAttribute("disabled", true);
+            document.querySelector("#form-streamer-checkbox").checked = true;
+        }
+        else {
+            document.querySelector("#form-streamer").value = streamerList.join("\n");
+
+        }
+    }
+}
+
+
+function loadForm(name) {
+    showSpinner(true);
+
+    fetch(`${name}/logs`).then(catchError).then(res => res.json()).then(res => {
+        showSpinner(false);
+        setOrClearForm(res.attr)
+    }).catch((e) => {
+        showSpinner(false);
+    })
 
 }
 
-function saveIdler(){
-    alert("Save");
+function saveIdler() {
+    //let botnameChk = document.querySelector("#form-gamename-checkbox");
+    //let streamerChk = document.querySelector("#form-streamer-checkbox");
+
+    let previousName = document.querySelector("#form-lastbotname");
+    let botname = document.querySelector("#form-botname");
+    let gamename = document.querySelector("#form-gamename");
+    let type = document.querySelector("#form-type");
+    let account = document.querySelector("#form-account");
+    let streamer = document.querySelector("#form-streamer");
+    let autostart = document.querySelector("#form-autostart");
+    let points = document.querySelector("#form-points");
+
+    var botObj = {
+        "name": botname.value.trim(),
+        "game": gamename.value.trim(),
+        "type": type.value.toLowerCase().trim(),
+        "account": account.value.trim(),
+        "autostart": autostart.checked,
+        "channelPoints": points.checked,
+        "streamerList": streamer.value.split("\n")
+    };
+
+    var sendData = {};
+    sendData.bot = botObj;
+    sendData.lastname = previousName.value.trim();
+
+    lockForm(true);
+
+
+    fetch('saveBot', {
+        method: 'POST',
+        body: JSON.stringify(sendData), // data can be `string` or {object}!
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(catchError)
+        .then(res => res.text()).then((res) => {
+            showAlert("Added bot - " + botObj.name, "success");
+            closeModal();
+        }).catch(res => {
+            showAlert("Failed to save bot - " + res.replace(stripTags, " "), "danger")
+            console.log(res);
+
+        }).finally(() => {
+            document.querySelector("#createEditIdler #modalSpinner").style.display = "none";
+            lockForm(false);
+        });
+
+
+    console.log(sendData);
+}
+
+function deleteIdler() {
+    let idler = document.querySelector("#form-lastbotname").value;
+    let exit = confirm(`Are you sure you want to delete ${idler}?`);
+
+    if (!exit) { return; }
+    lockForm(true);
+    showSpinner(true);
+    fetch(`${idler}/delete`, {
+        method: 'POST'
+    }).then(catchError).then(() => {
+        showAlert(`Deleted ${idler}`, "success");
+        closeModal();
+    }).catch((e) => {
+        showAlert(`Failed to delete ${idler} - ${e.replace(stripTags, " ")}`, "danger")
+    }).finally(() => {
+
+        showSpinner(false);
+        lockForm(false);
+
+    });
+
+
 
 }
 
@@ -105,11 +233,12 @@ function stopStartIdler(name) {
     page.querySelector(".start-stop-idler").classList.add("disabled");
     fetch(`${name}/${running === "true" ? "stop" : "start"}`, {
         method: 'POST'
-    }).then(() => {
+    }).then(catchError).then(() => {
         page.querySelector(".start-stop-idler").classList.remove("disabled");
+        showAlert(`Stopped bot - ${name}`, "success")
     }).catch((e) => {
         page.querySelector(".start-stop-idler").classList.remove("disabled");
-        console.log(e)
+        showAlert(`Failed to stop bot ${name} - ${e.replace(stripTags, " ")}`, "danger")
     });
 
 }
@@ -118,8 +247,8 @@ function goToNextStreamer(name) {
 
     fetch(`${name}/nextstreamer`, {
         method: 'POST'
-    }).catch((e) => {
-        console.log(e)
+    }).then(catchError).catch((e) => {
+        showAlert("Failed to go to next streamer - " + e.replace(stripTags, " "), "danger")
     })
 
 }
@@ -138,7 +267,7 @@ async function updateLogs() {
         return;
     }
 
-    fetch(`${name}/logs`).then(res => res.json()).then(res => {
+    fetch(`${name}/logs`).then(catchError).then(res => res.json()).then(res => {
         var page = selectedIdlerPage();
         page.querySelector(".info-bot .data").textContent = res.attr.name;
         page.querySelector(".info-account .data").textContent = res.attr.account;
@@ -227,7 +356,7 @@ async function updateImage() {
     //Make sure the last image has loaded so we don't flood the server
     if (imageLoadFinished) {
         imageLoadFinished = false;
-        fetch(`${name}/screenshot`).then(res => res.text()).then(res => {
+        fetch(`${name}/screenshot`).then(catchError).then(res => res.text()).then(res => {
 
             var page = selectedIdlerPage();
             page.querySelector(".holdingImage").style.display = "none";
@@ -257,40 +386,50 @@ function sendMouseClick(x, y, name) {
     })
 }
 
-function prepareCreateEditModal(accounts){
-    var model = document.querySelector("#createEditIdler");
+function prepareCreateEditModal(accounts) {
 
-    accounts.forEach(function(e){
-        model.querySelector("#form-account").insertAdjacentHTML('beforeend',`<option>${e}</option>`);
-    });
-    
-    model.querySelector("#form-gamename-checkbox").addEventListener('change',function(e){
-        if(model.querySelector("#form-gamename-checkbox").checked){
-            model.querySelector("#form-gamename").value = "";
-            model.querySelector("#form-gamename").setAttribute("placeholder","");
-            model.querySelector("#form-gamename").setAttribute("disabled","true");
-        }
-        else{
-            model.querySelector("#form-gamename").setAttribute("placeholder",model.querySelector("#form-gamename").getAttribute("data-placeholder"));
-            model.querySelector("#form-gamename").removeAttribute("disabled");
-        }
-        
+    document.getElementById('deleteButton').addEventListener('click', deleteIdler);
+
+    var modal = document.querySelector("#createEditIdler");
+
+    accounts.forEach(function (e) {
+        modal.querySelector("#form-account").insertAdjacentHTML('beforeend', `<option>${e}</option>`);
     });
 
-    model.querySelector("#form-streamer-checkbox").addEventListener('change',function(e){
-        if(model.querySelector("#form-streamer-checkbox").checked){
-            model.querySelector("#form-streamer").value = "";
-            model.querySelector("#form-streamer").setAttribute("placeholder","");
-            model.querySelector("#form-streamer").setAttribute("disabled","true");
+    modal.querySelector("#form-gamename-checkbox").addEventListener('change', function (e) {
+        if (modal.querySelector("#form-gamename-checkbox").checked) {
+            modal.querySelector("#form-gamename").setAttribute("data-last-game", modal.querySelector("#form-gamename").value);
+            modal.querySelector("#form-gamename").value = "";
+            modal.querySelector("#form-gamename").setAttribute("placeholder", "");
+            modal.querySelector("#form-gamename").setAttribute("disabled", "true");
+
         }
-        else{
-            model.querySelector("#form-streamer").setAttribute("placeholder",model.querySelector("#form-streamer").getAttribute("data-placeholder"));
-            model.querySelector("#form-streamer").removeAttribute("disabled");
+        else {
+            modal.querySelector("#form-gamename").value = modal.querySelector("#form-gamename").getAttribute("data-last-game");
+            modal.querySelector("#form-gamename").setAttribute("data-last-game", "");
+            modal.querySelector("#form-gamename").setAttribute("placeholder", modal.querySelector("#form-gamename").getAttribute("data-placeholder"));
+            modal.querySelector("#form-gamename").removeAttribute("disabled");
         }
-        
+
     });
 
-    model.querySelector("#saveButton").addEventListener('click',saveIdler);
+    modal.querySelector("#form-streamer-checkbox").addEventListener('change', function (e) {
+        if (modal.querySelector("#form-streamer-checkbox").checked) {
+            modal.querySelector("#form-streamer").setAttribute("data-last-streamer", modal.querySelector("#form-streamer").value);
+            modal.querySelector("#form-streamer").value = "";
+            modal.querySelector("#form-streamer").setAttribute("placeholder", "");
+            modal.querySelector("#form-streamer").setAttribute("disabled", "true");
+        }
+        else {
+            modal.querySelector("#form-streamer").value = modal.querySelector("#form-streamer").getAttribute("data-last-streamer");
+            modal.querySelector("#form-streamer").setAttribute("data-last-streamer", "");
+            modal.querySelector("#form-streamer").setAttribute("placeholder", modal.querySelector("#form-streamer").getAttribute("data-placeholder"));
+            modal.querySelector("#form-streamer").removeAttribute("disabled");
+        }
+
+    });
+
+    modal.querySelector("#saveButton").addEventListener('click', saveIdler);
 
 
 }
@@ -306,22 +445,24 @@ document.getElementById('killButton').addEventListener('click', () => {
 
     fetch('kill', {
         method: 'POST'
-    }).then(() => {
+    }).then(catchError).then(() => {
         setTimeout(window.location.reload, 2000)
     }).catch(err => alert(err.message))
 
 })
 
 //Update settings and populate idlers
-fetch('settings').then(r => r.json()).then(res => {
+fetch('settings').then(catchError).then(r => r.json()).then(res => {
     height = res.settings.VIEWPORT_HEIGHT;
     width = res.settings.VIEWPORT_WIDTH;
     res.idlers.forEach(createNewTab);
     prepareCreateEditModal(res.accounts)
 
 }).catch((e) => {
-    console.log(e)
+    showAlert("Failed to get global settings - " + e.replace(stripTags, " "), "danger")
 })
+
+
 
 //Libary functions
 function sleep(ms) {
@@ -344,4 +485,66 @@ function secondsToHms(d) {
     var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
     var sDisplay = s + (s == 1 ? " second" : " seconds");
     return hDisplay + mDisplay + sDisplay;
+}
+
+async function catchError(response) {
+    if (response.status >= 200 && response.status <= 299) {
+        return response;
+    } else {
+        let data = await response.text();
+        throw response.statusText + " - " + data;
+    }
+}
+
+
+let alertTimeout = null;
+function showAlert(data, type) {
+    if (alertTimeout) { clearTimeout(alertTimeout); }
+
+    document.querySelector(".alert").classList.forEach(function (e) {
+        if (e.indexOf("dismissible") == -1 && e.indexOf("alert-") != -1) {
+            document.querySelector(".alert").classList.remove(e);
+        }
+
+    });
+    document.querySelector(".alert-body").textContent = data;
+    document.querySelector(".alert").classList.add(`alert-${type}`);
+    document.querySelector(".alert").classList.add("show");
+    alertTimeout = setTimeout(hideAlert, 5000);
+
+
+}
+
+function hideAlert() {
+    document.querySelector(".alert").classList.remove("show");
+
+}
+
+function showSpinner(show) {
+    document.querySelector("#createEditIdler form").style.display = (show ? "none" : "");
+    document.querySelector("#createEditIdler #modalSpinner").style.display = (show ? "" : "none");
+
+}
+
+function lockForm(lock) {
+    document.querySelectorAll(
+        "#createEditIdler form input," +
+        "#createEditIdler form textarea," +
+        "#createEditIdler form select" +
+        "#deleteButton",
+        "#saveButton"
+    ).forEach(function (e) {
+        if (lock) {
+            e.setAttribute("disabled","true");
+        }
+        else {
+            e.removeAttribute("disabled");
+        }
+    });
+
+}
+
+function closeModal(){
+    var modal = bootstrap.Modal.getInstance(document.getElementById('createEditIdler'));
+    modal.hide();
 }
