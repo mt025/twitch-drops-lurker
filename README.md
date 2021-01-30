@@ -12,8 +12,8 @@ This allows you to idle twitch headless without having an additional window open
 1. Clone the repository to your device with `git clone https://github.com/mt025/twitch-drops-lurker.git`
 2. Install npm depencencies. First go to the downloaded folder `cd twitch-drops-lurker`, then run `npm install`
 3. Edit the index.js to specify chrome path. 
-4. Create a `accountname_localStorage.json` file in userlogins. For the content, run `copy(Object.entries(localStorage))` in the console when having twitch.tv open. This will fill your clipboard and you can paste it directly into `accountname_localStorage.json`. This can be done for mutiple accounts if desired
-5. Create a `accountname_cookies.json` file userlogins. Some of the cookies are not accesible from javascript, so you'll need to export them using the extension EditThisCookie
+4. Create a `accountname_localStorage.json` file in `./userlogins`. For the content, run `copy(Object.entries(localStorage))` in the console when having twitch.tv open. This will fill your clipboard and you can paste it directly into `accountname_localStorage.json`. This can be done for mutiple accounts if desired
+5. Create a `accountname_cookies.json` file in `./userlogins`. Some of the cookies are not accesible from javascript, so you'll need to export them using the extension EditThisCookie
 6. Start the node process. You can run `node index.js`
 7. Use the web interface to create idlers
 
