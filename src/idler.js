@@ -1,8 +1,7 @@
 import path from 'path';
 import { preparePage, disposePage } from './puppeteerPage';
 import { waitAsync } from './utils';
-import { settings, accounts } from './index'
-
+import { settings } from './index';
 export class Idler {
 
     constructor() {
@@ -74,7 +73,7 @@ export class Idler {
 
             }, 1000 * 60)
 
-            this.updateStatus(`✔️ Started idler`);
+            
 
             //Prepare the page
             await preparePage(this);
@@ -82,6 +81,7 @@ export class Idler {
             //Go to streamer
             await this.goToLiveStreamer();
 
+            this.updateStatus(`✔️ Started idler`);
 
         } catch (e) {
             clearInterval(this.running);
@@ -118,8 +118,8 @@ export class Idler {
             setTimeout(function () {
 
                 idler.page.evaluate(_ => {
-                        document.querySelector(".claimable-bonus__icon").click();
-                  });
+                    document.querySelector(".claimable-bonus__icon").click();
+                });
 
                 idler.updateStatus(`🗳️ Claimed bonus points for ${idler.currentStreamer}`, idler.currentStreamer);
             }, Math.random() * 4000);
@@ -177,22 +177,21 @@ export class Idler {
 
         let streamerLink;
         //We are using a search term, rather than a list
-        if (!this.attr.streamerList) {
-
+        if (this.attr.streamerList == null || this.attr.streamerList.length == 0) {
 
             let streamsDirectoryUrl;
-            
-            if(this.attr.game == null){
+
+            if (this.attr.game == null || this.attr.game == "") {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/all`;
-                
+
             }
-            else if(this.attr.type == "new"){
+            else if (this.attr.type == "new") {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}?tl=${settings.DROPS_ENABLED_TAGID}`;
             }
-            else{
+            else {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}`;
             }
-            
+
             await this.page.goto(streamsDirectoryUrl, {
                 waitUntil: 'networkidle2'
             });
@@ -247,8 +246,8 @@ export class Idler {
 
         //TODO Catch eval errors
         if (this.attr.game) {
-            const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
-            if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.attr.game}`) {
+            const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.textContent.toLowerCase().trim());
+            if (!gameCategoryHref || gameCategoryHref !== this.attr.game.toLowerCase()) {
                 this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.attr.game}`, this.currentStreamer);
                 return false;
             }

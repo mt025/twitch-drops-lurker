@@ -9,16 +9,17 @@ import { prepareBrowser } from './puppeteerPage';
 import { Idler } from './idler';
 import fs from 'fs';
 import path from 'path';
-import { waitAsync, generateRandomString } from './utils';
-import './webserver';
+import { waitAsync } from './utils';
+import { startServer } from './webserver';
 
 //Get the idler object by name
 export function getIdlersByName(name) {
     for (let i = 0; i < idlers.length; i++) {
         if (name.toLowerCase() == idlers[i].attr.name.toLowerCase()) {
-            return idlers[i]
+            return {key: i, value: idlers[i]}
         }
     }
+    return null;
 }
 
 export const accounts = [];
@@ -55,7 +56,6 @@ async function createIdlers() {
         let template = {};
 
         //Idler default settings
-        template.name = "Unnamed-" + generateRandomString(4);
         template.type = "new";
         template.account = (accounts.length > 0) ? accounts[0] : null;
         template.game = null;
@@ -69,7 +69,7 @@ async function createIdlers() {
         idlers.push(idlerObj);
 
         if (idlerObj == null || !idlerObj.attr.autostart) return;
-        await idlerObj.start();
+        idlerObj.start();
     });
 
     keepIdlersAlive();
@@ -92,8 +92,20 @@ async function keepIdlersAlive() {
 
 }
 
+export function saveIdersToFile(){
+    var usersFile = path.join(__dirname, '..', "userlogins", `users.json`);
+    var outData = [];
+    for(let i =0; i < idlers.length;i++)
+    {
+        outData.push(idlers[i].attr);
+    }
+
+    fs.writeFileSync(usersFile,JSON.stringify(outData));
+
+}
 
 main();
+
 
 async function main() {
 
@@ -106,4 +118,5 @@ async function main() {
     //Create idlers 
     await createIdlers();
 
+    startServer();
 }

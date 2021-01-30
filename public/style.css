@@ -148,3 +148,7 @@ button:focus {
 	font-size: 8pt;
 	padding:0.6rem;
 }
+
+#mainTabs .nav-link{
+	text-align: left;
+}

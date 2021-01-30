@@ -2,6 +2,7 @@
 let width = 720;
 
 let imageLoadFinished = true;
+let logsLoadFinished = true;
 
 let logIntervalTime = 1000;
 let imageIntervalTime = localStorage.getItem("imageIntervalTime") ? parseInt(localStorage.getItem("imageIntervalTime")) : 1000;
@@ -19,7 +20,7 @@ function createNewTab(idler) {
     var name = idler.attr.name;
 
     // create the tab
-    document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', `<a class="nav-link" data-name="${name}" id="v-pills-${name}-tab" data-bs-toggle="pill" href="#v-pills-${name}" role="tab" aria-controls="v-pills-${name}" aria-selected="true">Idler: ${name}</a>`)
+    document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', `<a class="nav-link" data-name="${name}" id="v-pills-${name}-tab" data-bs-toggle="pill" href="#v-pills-${name}" role="tab" aria-controls="v-pills-${name}" aria-selected="true"><span class='status-icon'>🔷</span>&nbsp;${name}</a>`)
 
     // create the tab content
     document.querySelector('#v-pills-tabContent').insertAdjacentHTML('beforeend', `<div class="tab-pane" data-name="${name}" id="v-pills-${name}" role="tabpanel" aria-labelledby="v-pills-${name}-tab"></div>`)
@@ -76,31 +77,15 @@ function createNewTab(idler) {
     //Update page info
     tabPage.querySelector(".info-bot .data").textContent = name;
     tabPage.querySelector(".interval-spinner").value = 60 / (imageIntervalTime * 0.001);
-
-    var idlerModal = document.getElementById('createEditIdler')
-
-
-
-    idlerModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget
-        var name = button.getAttribute('data-bs-edit');
-        setOrClearForm();
-        idlerModal.querySelector('.modal-title').textContent = (name ? `Edit Idler - ${name}` : "Create New Idler");
-        idlerModal.querySelector("#form-lastbotname").value = (name ? name : "");
-        idlerModal.querySelector("#deleteButton").style.display = (name ? "" : "none");
-        if (name) loadForm(name);
-    })
-
-    // idlerModal.addEventListener('hide.bs.modal', function (event) {
-    //     hideAlert();
-    // })
 }
 
 function setOrClearForm(idler) {
+
+    document.querySelector("#createEditIdler-form").classList.remove('was-validated');
     document.querySelector("#form-lastbotname").value = idler ? idler.name : "";
     document.querySelector("#form-botname").value = idler ? idler.name : "";
     document.querySelector("#form-gamename").value = idler ? idler.game : "";
-    document.querySelector("#form-type").value = idler ? idler.type : "";
+    document.querySelector("#form-type").value = idler ? idler.type : "none";
     document.querySelector("#form-autostart").checked = idler ? idler.autostart : "";
     document.querySelector("#form-points").checked = idler ? idler.channelPoints : "";
 
@@ -128,7 +113,7 @@ function setOrClearForm(idler) {
             document.querySelector("#form-streamer-checkbox").checked = true;
         }
         else {
-            document.querySelector("#form-streamer").value = streamerList.join("\n");
+            document.querySelector("#form-streamer").value = idler.streamerList.join("\n");
 
         }
     }
@@ -138,24 +123,37 @@ function setOrClearForm(idler) {
 function loadForm(name) {
     showSpinner(true);
 
-    fetch(`${name}/logs`).then(catchError).then(res => res.json()).then(res => {
+    fetch(`settings`).then(catchError).then(res => res.json()).then(res => {
         showSpinner(false);
-        setOrClearForm(res.attr)
+        let idler = getIdlerFromSettings(res,name);
+        if ( idler == null) return;
+        setOrClearForm(idler.attr);
     }).catch((e) => {
+        console.log(e);
         showSpinner(false);
     })
 
 }
 
-function saveIdler() {
+function saveIdler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.target.classList.add('was-validated');
+    if (!event.target.checkValidity()) {
+        return;
+    }
+
+
     //let botnameChk = document.querySelector("#form-gamename-checkbox");
     //let streamerChk = document.querySelector("#form-streamer-checkbox");
 
     let previousName = document.querySelector("#form-lastbotname");
+    //Max 40 chars, no spaces only A-Za-z0-9_\-
     let botname = document.querySelector("#form-botname");
     let gamename = document.querySelector("#form-gamename");
     let type = document.querySelector("#form-type");
     let account = document.querySelector("#form-account");
+    //No spaces
     let streamer = document.querySelector("#form-streamer");
     let autostart = document.querySelector("#form-autostart");
     let points = document.querySelector("#form-points");
@@ -175,9 +173,9 @@ function saveIdler() {
     sendData.lastname = previousName.value.trim();
 
     lockForm(true);
+    showSpinner(true);
 
-
-    fetch('saveBot', {
+    fetch('saveIdler', {
         method: 'POST',
         body: JSON.stringify(sendData), // data can be `string` or {object}!
         headers: {
@@ -187,12 +185,14 @@ function saveIdler() {
         .then(res => res.text()).then((res) => {
             showAlert("Added bot - " + botObj.name, "success");
             closeModal();
+            //TODO - This a cheat
+            window.location.reload();
         }).catch(res => {
-            showAlert("Failed to save bot - " + res.replace(stripTags, " "), "danger")
             console.log(res);
+            showAlert("Failed to save bot - " + res.replace(stripTags, " "), "danger")
 
         }).finally(() => {
-            document.querySelector("#createEditIdler #modalSpinner").style.display = "none";
+            showSpinner(false);
             lockForm(false);
         });
 
@@ -212,7 +212,10 @@ function deleteIdler() {
     }).then(catchError).then(() => {
         showAlert(`Deleted ${idler}`, "success");
         closeModal();
+        //TODO - This a cheat
+        window.location.reload();
     }).catch((e) => {
+        console.log(e);
         showAlert(`Failed to delete ${idler} - ${e.replace(stripTags, " ")}`, "danger")
     }).finally(() => {
 
@@ -237,8 +240,9 @@ function stopStartIdler(name) {
         page.querySelector(".start-stop-idler").classList.remove("disabled");
         showAlert(`Stopped bot - ${name}`, "success")
     }).catch((e) => {
+        console.log(e);
         page.querySelector(".start-stop-idler").classList.remove("disabled");
-        showAlert(`Failed to stop bot ${name} - ${e.replace(stripTags, " ")}`, "danger")
+        showAlert(`Failed to start/stop bot ${name} - ${e.replace(stripTags, " ")}`, "danger")
     });
 
 }
@@ -248,6 +252,7 @@ function goToNextStreamer(name) {
     fetch(`${name}/nextstreamer`, {
         method: 'POST'
     }).then(catchError).catch((e) => {
+        console.log(e);
         showAlert("Failed to go to next streamer - " + e.replace(stripTags, " "), "danger")
     })
 
@@ -260,18 +265,32 @@ function updateRate(e) {
     localStorage.setItem("imageIntervalTime", imageIntervalTime);
 }
 
+
 async function updateLogs() {
-    var name = selectedIdlerName();
+    //skip to avoid flooding server
+    if(!logsLoadFinished) return;
+    logsLoadFinished = false;
 
-    if (!name) {
-        return;
-    }
+    fetch(`settings`).then(catchError).then(res => res.json()).then(res => {
+        //Global updates
+        res.idlers.forEach(function(e)
+        {
+            var name = e.attr.name;
+            var running = e.running;
+            document.querySelector(`#v-pills-${name}-tab .status-icon`).textContent = (running ? "✔️" : "⭕")
 
-    fetch(`${name}/logs`).then(catchError).then(res => res.json()).then(res => {
-        var page = selectedIdlerPage();
-        page.querySelector(".info-bot .data").textContent = res.attr.name;
-        page.querySelector(".info-account .data").textContent = res.attr.account;
-        page.querySelector(".info-game .data").textContent = res.attr.game ? decodeURIComponent(res.attr.game) : "Any";
+        });
+        //Current page updates
+        let page = selectedIdlerPage();
+        let name = selectedIdlerName();
+        if (name == null) return;
+
+        let idler = getIdlerFromSettings(res,name);
+        if ( idler == null) return;
+
+        page.querySelector(".info-bot .data").textContent = idler.attr.name;
+        page.querySelector(".info-account .data").textContent = idler.attr.account;
+        page.querySelector(".info-game .data").textContent = idler.attr.game ? decodeURIComponent(idler.attr.game) : "Any";
 
         page.querySelector(".info-status").classList.forEach(function (e) {
             if (e.toLowerCase().indexOf("bg-") != -1) {
@@ -280,14 +299,14 @@ async function updateLogs() {
 
         });
 
-        if (res.navigating) {
+        if (idler.navigating) {
             page.querySelector(".info-status .data").textContent = "Navigating";
             page.querySelector(".info-status").classList.add("bg-warning");
             page.querySelector(".info-status").setAttribute("data-status", "navigating");
             page.querySelector(".holdingImage").style.display = "none";
             page.querySelector(".statusImage").style.display = "inline-block";
         }
-        else if (res.running) {
+        else if (idler.running) {
             page.querySelector(".info-status .data").textContent = "Running";
             page.querySelector(".info-status").classList.add("bg-success");
             page.querySelector(".info-status").classList.add("bg-success");
@@ -304,18 +323,18 @@ async function updateLogs() {
         }
 
         let streamer = page.querySelector(".info-streamer .data");
-        streamer.textContent = res.currentStreamer || "...";
-        streamer.setAttribute("href", res.streamerLink || "");
+        streamer.textContent = idler.currentStreamer || "...";
+        streamer.setAttribute("href", `https://twitch.tv/${idler.currentStreamer}`);
 
-        page.querySelector(".info-time .data").textContent = (res.startTime == 0) ? "..." : secondsToHms((Date.now() - res.startTime) / 1000);
-        page.querySelector(".info-type .data").textContent = res.attr.type;
+        page.querySelector(".info-time .data").textContent = (idler.startTime == 0) ? "..." : secondsToHms((Date.now() - idler.startTime) / 1000);
+        page.querySelector(".info-type .data").textContent = idler.attr.type;
         page.querySelector(".holdingLogs").style.display = "none";
 
         let logArea = page.querySelector(".statusLog");
         let logIndex = parseInt(logArea.getAttribute("data-index"));
 
-        for (let i = logIndex; i < res.logs.length; i++) {
-            var item = res.logs[i];
+        for (let i = logIndex; i < idler.logs.length; i++) {
+            var item = idler.logs[i];
             var output = item.status;
 
             if (item.includedLink) {
@@ -325,21 +344,25 @@ async function updateLogs() {
             logArea.insertAdjacentHTML('afterbegin', `<p>${output} </p>`);
         }
 
-        if (res.logs.length > 0) {
-            logArea.setAttribute("data-index", res.logs.length);
+        if (idler.logs.length > 0) {
+            logArea.setAttribute("data-index", idler.logs.length);
         }
 
 
-        page.querySelector(".start-stop-idler").setAttribute("data-running", res.running.toString());
+        page.querySelector(".start-stop-idler").setAttribute("data-running", idler.running.toString());
         page.querySelector(".start-stop-idler").classList.remove("btn-warning");
         page.querySelector(".start-stop-idler").classList.remove("btn-danger");
         page.querySelector(".start-stop-idler").classList.remove("btn-success");
-        page.querySelector(".start-stop-idler").classList.add(res.running ? "btn-danger" : "btn-success");
-        page.querySelector(".start-stop-idler").textContent = res.running ? "Stop Idler" : "Start Idler";
+        page.querySelector(".start-stop-idler").classList.add(idler.running ? "btn-danger" : "btn-success");
+        page.querySelector(".start-stop-idler").textContent = idler.running ? "Stop Idler" : "Start Idler";
 
 
     }).catch((e) => {
+        console.log(e);
         console.log(`Failed to get logs: ${e.message}`);
+    }).finally(()=> {
+        logsLoadFinished = true;
+
     });
 }
 
@@ -364,6 +387,7 @@ async function updateImage() {
             page.querySelector(".statusImage").setAttribute("src", `data:image/jpg;base64,${res}`);
             imageLoadFinished = true;
         }).catch((e) => {
+            console.log(e);
             imageLoadFinished = true;
             console.log(`Failed to get image: ${e.message}`);
         });
@@ -429,7 +453,7 @@ function prepareCreateEditModal(accounts) {
 
     });
 
-    modal.querySelector("#saveButton").addEventListener('click', saveIdler);
+    modal.querySelector("#createEditIdler-form").addEventListener('submit', saveIdler, true);
 
 
 }
@@ -447,7 +471,10 @@ document.getElementById('killButton').addEventListener('click', () => {
         method: 'POST'
     }).then(catchError).then(() => {
         setTimeout(window.location.reload, 2000)
-    }).catch(err => alert(err.message))
+    }).catch((e) => {
+        console.log(e);
+        showAlert("Failed to stop process", "danger");
+    })
 
 })
 
@@ -459,15 +486,24 @@ fetch('settings').then(catchError).then(r => r.json()).then(res => {
     prepareCreateEditModal(res.accounts)
 
 }).catch((e) => {
+    console.log(e);
     showAlert("Failed to get global settings - " + e.replace(stripTags, " "), "danger")
 })
 
+document.getElementById('createEditIdler').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget
+    var name = button.getAttribute('data-bs-edit');
+    setOrClearForm();
+    document.getElementById('createEditIdler').querySelector('.modal-title').textContent = (name ? `Edit Idler - ${name}` : "Create New Idler");
+    document.getElementById('createEditIdler').querySelector("#form-lastbotname").value = (name ? name : "");
+    document.getElementById('createEditIdler').querySelector("#deleteButton").style.display = (name ? "" : "none");
+    if (name) loadForm(name);
+})
 
+// idlerModal.addEventListener('hide.bs.modal', function (event) {
+//     hideAlert();
+// })
 
-//Libary functions
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 //Map one number to another
 function map(x, in_min, in_max, out_min, out_max) {
@@ -492,7 +528,7 @@ async function catchError(response) {
         return response;
     } else {
         let data = await response.text();
-        throw response.statusText + " - " + data;
+        throw data;
     }
 }
 
@@ -521,7 +557,7 @@ function hideAlert() {
 }
 
 function showSpinner(show) {
-    document.querySelector("#createEditIdler form").style.display = (show ? "none" : "");
+    document.querySelector("#createEditIdler #createEditIdler-body").style.display = (show ? "none" : "");
     document.querySelector("#createEditIdler #modalSpinner").style.display = (show ? "" : "none");
 
 }
@@ -535,7 +571,7 @@ function lockForm(lock) {
         "#saveButton"
     ).forEach(function (e) {
         if (lock) {
-            e.setAttribute("disabled","true");
+            e.setAttribute("disabled", "true");
         }
         else {
             e.removeAttribute("disabled");
@@ -544,7 +580,17 @@ function lockForm(lock) {
 
 }
 
-function closeModal(){
+function closeModal() {
     var modal = bootstrap.Modal.getInstance(document.getElementById('createEditIdler'));
     modal.hide();
+}
+
+function getIdlerFromSettings(res,name) {
+    for (let i = 0; i < res.idlers.length; i++) {
+        let current = res.idlers[i];
+        if (current.attr.name.toLowerCase() == name.toLowerCase()) {
+            return current;
+        }
+    }
+    return null;
 }
