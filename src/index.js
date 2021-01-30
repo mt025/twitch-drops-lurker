@@ -15,7 +15,7 @@ import './webserver';
 //Get the idler object by name
 export function getIdlersByName(name) {
     for (let i = 0; i < idlers.length; i++) {
-        if (name.toLowerCase() == idlers[i].name.toLowerCase()) {
+        if (name.toLowerCase() == idlers[i].attr.name.toLowerCase()) {
             return idlers[i]
         }
     }
@@ -52,10 +52,12 @@ async function createIdlers() {
     const idlerData = require(usersFile);
 
     idlerData.forEach(async function (idler) {
+        let attrObj = {};
+        attrObj.attr = idler;
         var idlerObj = Object.assign(new Idler(), idler);
         idlers.push(idlerObj);
 
-        if (idlerObj == null || !idlerObj.autostart) return;
+        if (idlerObj == null || !idlerObj.attr.autostart) return;
         await idlerObj.start();
     });
 

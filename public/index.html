@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="row mb-1">
-                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-type">Bot Type:</label>
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-type">Bot Drops Type:</label>
                             <div class="col-sm-10">
                                 <select class="form-select form-select-sm" id="form-type"  autocomplete="off">
                                     <option selected>New</option>
@@ -142,11 +142,20 @@
                         </div>
 
                         <div class="row mb-1">
-                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-botname">Streamer List:</label>
+                            <label class="col-sm-2 col-form-label col-form-label-sm" for="form-streamer">Streamer List:</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control form-control-sm" id="form-botname"
-                                    placeholder="Streamers to idle, each streamer on a new line. Leave blank for all streamers  - bikinibodhi"
-                                    title="Streamers to idle, each streamer on a new line. Leave blank for all streamers - bikinibodhi" autocomplete="off"></textarea>
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-text">
+                                    <input class="form-check-input" type="checkbox" checked id="form-streamer-checkbox" autocomplete="off"><label for="form-streamer-checkbox">&nbsp;&nbsp;Any streamer</label>
+                                </div>
+                                <textarea disabled class="form-control form-control-sm" id="form-streamer"
+                                data-placeholder="Streamers to idle, each streamer on a new line - bikinibodhi"
+                                title="Streamers to idle, each streamer on a new line - bikinibodhi" autocomplete="off"></textarea>
+                            </div>
+                        </div>
+
+                            <div class="col-sm-10">
+                               
                             </div>
                         </div>
 

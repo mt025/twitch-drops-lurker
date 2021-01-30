@@ -14,7 +14,7 @@ let selectedIdlerButton = () => document.querySelector('#mainTabs .nav-link.acti
 let selectedIdlerPage = () => document.querySelector('#mainTabs .tab-pane.active');
 
 function createNewTab(idler) {
-    var name = idler.name;
+    var name = idler.attr.name;
 
     // create the tab
     document.querySelector('#v-pills-home-tab').insertAdjacentHTML('afterend', `<a class="nav-link" data-name="${name}" id="v-pills-${name}-tab" data-bs-toggle="pill" href="#v-pills-${name}" role="tab" aria-controls="v-pills-${name}" aria-selected="true">Idler: ${name}</a>`)
@@ -140,9 +140,9 @@ async function updateLogs() {
 
     fetch(`${name}/logs`).then(res => res.json()).then(res => {
         var page = selectedIdlerPage();
-        page.querySelector(".info-bot .data").textContent = res.name;
-        page.querySelector(".info-account .data").textContent = res.account;
-        page.querySelector(".info-game .data").textContent = res.game ? decodeURIComponent(res.game) : "Any";
+        page.querySelector(".info-bot .data").textContent = res.attr.name;
+        page.querySelector(".info-account .data").textContent = res.attr.account;
+        page.querySelector(".info-game .data").textContent = res.attr.game ? decodeURIComponent(res.attr.game) : "Any";
 
         page.querySelector(".info-status").classList.forEach(function (e) {
             if (e.toLowerCase().indexOf("bg-") != -1) {
@@ -179,7 +179,7 @@ async function updateLogs() {
         streamer.setAttribute("href", res.streamerLink || "");
 
         page.querySelector(".info-time .data").textContent = (res.startTime == 0) ? "..." : secondsToHms((Date.now() - res.startTime) / 1000);
-        page.querySelector(".info-type .data").textContent = res.type;
+        page.querySelector(".info-type .data").textContent = res.attr.type;
         page.querySelector(".holdingLogs").style.display = "none";
 
         let logArea = page.querySelector(".statusLog");
@@ -273,6 +273,19 @@ function prepareCreateEditModal(accounts){
         else{
             model.querySelector("#form-gamename").setAttribute("placeholder",model.querySelector("#form-gamename").getAttribute("data-placeholder"));
             model.querySelector("#form-gamename").removeAttribute("disabled");
+        }
+        
+    });
+
+    model.querySelector("#form-streamer-checkbox").addEventListener('change',function(e){
+        if(model.querySelector("#form-streamer-checkbox").checked){
+            model.querySelector("#form-streamer").value = "";
+            model.querySelector("#form-streamer").setAttribute("placeholder","");
+            model.querySelector("#form-streamer").setAttribute("disabled","true");
+        }
+        else{
+            model.querySelector("#form-streamer").setAttribute("placeholder",model.querySelector("#form-streamer").getAttribute("data-placeholder"));
+            model.querySelector("#form-streamer").removeAttribute("disabled");
         }
         
     });

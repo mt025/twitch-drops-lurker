@@ -6,16 +6,16 @@ import { settings, accounts } from './index'
 export class Idler {
 
     constructor() {
-        //Idler default settings
-        this.name = "Unnamed-" + generateRandomString(4);
-        this.type = "new";
-        
-        this.account = (accounts.length > 0) ? accounts[0] : null;
+        this.attr = {};
 
-        this.game = null;
-        this.streamerList = null;
-        this.autostart = false;
-        this.channelPoints = false;
+        //Idler default settings
+        this.attr.name = "Unnamed-" + generateRandomString(4);
+        this.attr.type = "new";
+        this.attr.account = (accounts.length > 0) ? accounts[0] : null;
+        this.attr.game = null;
+        this.attr.streamerList = null;
+        this.attr.autostart = false;
+        this.attr.channelPoints = false;
 
         //vars
         this.page = null;
@@ -31,8 +31,8 @@ export class Idler {
         this.running = null;
 
         //Dynamic
-        this.cookies = () => path.join(__dirname, '..', "userlogins", `${this.account}_cookies.json`);
-        this.storage = () => path.join(__dirname, '..', "userlogins", `${this.account}_localStorage.json`);
+        this.cookies = () => path.join(__dirname, '..', "userlogins", `${this.attr.account}_cookies.json`);
+        this.storage = () => path.join(__dirname, '..', "userlogins", `${this.attr.account}_localStorage.json`);
     }
 
     updateStatus(status, includedLink) {
@@ -42,7 +42,7 @@ export class Idler {
             + date.getMinutes().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
 
 
-        console.debug(`${timeStamp}: ${this.name} - ${status}`);
+        console.debug(`${timeStamp}: ${this.attr.name} - ${status}`);
         this.logs.push({
             index: this.logindex++,
             status: timeStamp + ": " + status,
@@ -72,7 +72,7 @@ export class Idler {
                 if (!((Date.now() - this.startTime) < 1000 * 60 * 60)) { await this.hourReload(); return; }
 
                 //Claim channel points
-                if (this.channelPoints) { await this.claimChannelPoints(); }
+                if (this.attr.channelPoints) { await this.claimChannelPoints(); }
 
             }, 1000 * 60)
 
@@ -179,13 +179,22 @@ export class Idler {
 
         let streamerLink;
         //We are using a search term, rather than a list
-        if (!this.streamerList) {
-            let streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}?tl=${settings.DROPS_ENABLED_TAGID}`;
+        if (!this.attr.streamerList) {
 
-            if (this.type == "legacy") {
-                streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.game}`;
+
+            let streamsDirectoryUrl;
+            
+            if(this.attr.game == null){
+                streamsDirectoryUrl = `https://www.twitch.tv/directory/all`;
+                
             }
-
+            else if(this.attr.type == "new"){
+                streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}?tl=${settings.DROPS_ENABLED_TAGID}`;
+            }
+            else{
+                streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}`;
+            }
+            
             await this.page.goto(streamsDirectoryUrl, {
                 waitUntil: 'networkidle2'
             });
@@ -201,8 +210,8 @@ export class Idler {
             this.currentStreamer = streamerLink.split('/').pop();
         } else {
             //We are using a streamer link list
-            let count = this.currentStreamerListIndex++ % this.streamerList.length;
-            this.currentStreamer = this.streamerList[count];
+            let count = this.currentStreamerListIndex++ % this.attr.streamerList.length;
+            this.currentStreamer = this.attr.streamerList[count];
             streamerLink = `https://twitch.tv/${this.currentStreamer}`;
         }
 
@@ -239,26 +248,26 @@ export class Idler {
         }
 
         //TODO Catch eval errors
-        if (this.game) {
+        if (this.attr.game) {
             const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.href);
-            if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.game}`) {
-                this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.game}`, this.currentStreamer);
+            if (!gameCategoryHref || gameCategoryHref !== `https://www.twitch.tv/directory/game/${this.attr.game}`) {
+                this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.attr.game}`, this.currentStreamer);
                 return false;
             }
         }
 
         let dropsEnabled = true;
 
-        if (this.type == "new") {
+        if (this.attr.type == "new") {
             dropsEnabled = !!await this.page.$('[data-a-target="Drops Enabled"]');
 
-        } else if (this.type == "legacy") {
+        } else if (this.attr.type == "legacy") {
             dropsEnabled = !!await this.page.$('[data-test-selector="drops-campaign-details"] .drops-campaign-details__drops-success');
 
         }
 
         if (!dropsEnabled) {
-            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.game}`, this.currentStreamer);
+            this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.attr.game}`, this.currentStreamer);
             return false
         }
 
