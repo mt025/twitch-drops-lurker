@@ -46,9 +46,7 @@ export let browser = null;
 export async function prepareBrowser() {
     // Prepare browser
     browser = await puppeteer.launch({
-        //TOFIX
         executablePath: settings.CHROME_EXEC_PATH,
-        executablePath: "/usr/bin/chromium-browser",
         args: chromeArgs,
         headless,
         dumpio: false,
