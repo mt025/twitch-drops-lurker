@@ -73,7 +73,7 @@ export class Idler {
 
             }, 1000 * 60)
 
-            
+
 
             //Prepare the page
             await preparePage(this);
@@ -185,7 +185,7 @@ export class Idler {
             if (this.attr.game == null || this.attr.game == "") {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/all`;
             }
-            else{
+            else {
                 streamsDirectoryUrl = `https://www.twitch.tv/directory/game/${this.attr.game}`;
             }
 
@@ -195,10 +195,18 @@ export class Idler {
             }
 
             await this.page.goto(streamsDirectoryUrl, {
-                waitUntil: 'networkidle2'
+                waitUntil: 'networkidle0'
             });
 
-            const streamHrefs = await this.page.$$eval('.tw-tower a[data-a-target="preview-card-image-link"]', links => links.map(link => link.href));
+            //For some reason there is an issue with finding streamers, retry every second for 10 seconds until its found, then fail if non are found
+            let streamHrefs;
+            for (let i = 0; i < 10; i++) {
+                streamHrefs = await this.page.$$eval('.tw-tower a[data-a-target="preview-card-image-link"]', links => links.map(link => link.href));
+                if (streamHrefs.length > 0) {
+                    break;
+                }
+                await waitAsync(1000);
+            }
 
             if (!streamHrefs.length) {
                 this.updateStatus('😥 No live streams found!');
