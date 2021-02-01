@@ -26,7 +26,19 @@ async function searchForBrowser() {
     }
 
     //Search for chrome ELF/EXE
-    let searchPath = (platform() === "win32" ? chromePaths.win32 : chromePaths.unix);
+    let searchPath;
+    switch (platform()) {
+        case "win32":
+            searchPath = chromePaths.win32;
+            break;
+        case "darwin":
+            searchPath = chromePaths.osx;
+            break;
+        default:
+            searchPath = chromePaths.unix;
+            break;
+    }
+    
     for (let i = 0; i < searchPath.length; i++) {
         let e = searchPath[i];
 

@@ -162,9 +162,11 @@ export class Idler {
     }
 
     async hourReload() {
-        if (this.currentStreamer == null) return;
-        this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour`, this.currentStreamer);
-        await this.goToLiveStreamer();
+        if (this.currentStreamer == null || this.page == null) return;
+        this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour. Reloading page.`, this.currentStreamer);
+        await this.page.evaluate(() => {
+            location.reload();
+         });
     }
 
     async goToLiveStreamer() {

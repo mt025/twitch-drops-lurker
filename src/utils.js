@@ -66,6 +66,9 @@ export const chromePaths = {
       "/usr/local/bin/brave-browser",
 
 
+  ],
+  osx: [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
   ]
 
 }
