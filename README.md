@@ -7,6 +7,12 @@ This allows you to idle twitch headless without having an additional window open
 
 ![Screenshot showing twitch drops lurker](screenshot_main.png)
 
+## Requirements
+- Google Chrome / Chromium (Other Chromium based browsers such as Brave may work, but are not supported)
+- EditThisCookie chrome extension
+- Node.js / npm
+
+
 ## Installation
 
 1. Clone the repository to your device with `git clone https://github.com/mt025/twitch-drops-lurker.git`

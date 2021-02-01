@@ -1,5 +1,4 @@
 export const settings = {
-    CHROME_EXEC_PATH: "/usr/bin/chromium-browser",
     VIEWPORT_WIDTH: 1080,
     VIEWPORT_HEIGHT: 720,
     DROPS_ENABLED_TAGID: 'c2542d6d-cd10-4532-919b-3d19f30a768b'
@@ -9,14 +8,66 @@ import { prepareBrowser } from './puppeteerPage';
 import { Idler } from './idler';
 import fs from 'fs';
 import path from 'path';
-import { waitAsync } from './utils';
+import { waitAsync, askQuestion, chromePaths } from './utils';
 import { startServer } from './webserver';
+import { platform } from 'os'
+
+
+async function searchForBrowser() {
+    let chromeLocationFile = path.join(__dirname, '..', `.chromelocation`);
+    if (fs.existsSync(chromeLocationFile)) {
+        settings.CHROME_EXEC_PATH = fs.readFileSync(chromeLocationFile, 'utf8').toString()
+        if(fs.existsSync(settings.CHROME_EXEC_PATH)){
+            return;
+        }
+        else{
+            console.log(`Could not find chrome at ${settings.CHROME_EXEC_PATH}`);
+        }        
+    }
+
+    //Search for chrome ELF/EXE
+    let searchPath = (platform() === "win32" ? chromePaths.win32 : chromePaths.unix);
+    for (let i = 0; i < searchPath.length; i++) {
+        let e = searchPath[i];
+
+        if (fs.existsSync(e)) {
+            settings.CHROME_EXEC_PATH = e;
+            fs.writeFileSync(chromeLocationFile, e);
+            console.log(`Found chrome path ${e}.`);
+            console.log(`Edit ${chromeLocationFile} if you wish to change the path.`);
+            return;
+        }
+    }
+
+    //We didn't find the path, ask the user
+    console.log("Couldn't automatically find chrome on your system.");
+
+    let failed = false;
+    let res = "";
+    while (true){
+
+        res = await askQuestion((failed ?  `File "${res}" does not exist, try again: ` : "Please enter the path to your chrome exe/elf file: "));
+        if(fs.existsSync(res))
+        {
+            settings.CHROME_EXEC_PATH = res;
+            fs.writeFileSync(chromeLocationFile, res);
+            console.log(`Found chrome path ${res}.`);
+            console.log(`Edit ${chromeLocationFile} if you wish to change the path.`);
+            break;
+        }
+        else 
+        {
+            failed = true;
+        }
+    }
+
+}
 
 //Get the idler object by name
 export function getIdlersByName(name) {
     for (let i = 0; i < idlers.length; i++) {
         if (name.toLowerCase() == idlers[i].attr.name.toLowerCase()) {
-            return {key: i, value: idlers[i]}
+            return { key: i, value: idlers[i] }
         }
     }
     return null;
@@ -92,15 +143,14 @@ async function keepIdlersAlive() {
 
 }
 
-export function saveIdersToFile(){
-    var usersFile = path.join(__dirname, '..', "userlogins", `users.json`);
-    var outData = [];
-    for(let i =0; i < idlers.length;i++)
-    {
+export function saveIdersToFile() {
+    let usersFile = path.join(__dirname, '..', "userlogins", `users.json`);
+    let outData = [];
+    for (let i = 0; i < idlers.length; i++) {
         outData.push(idlers[i].attr);
     }
 
-    fs.writeFileSync(usersFile,JSON.stringify(outData));
+    fs.writeFileSync(usersFile, JSON.stringify(outData));
 
 }
 
@@ -108,6 +158,8 @@ main();
 
 
 async function main() {
+
+    await searchForBrowser();
 
     //Populate accounts
     await populateAccounts();
@@ -120,3 +172,4 @@ async function main() {
 
     startServer();
 }
+
