@@ -222,11 +222,11 @@ function stopStartIdler (name) {
     method: 'POST'
   }).then(catchError).then(() => {
     page.querySelector('.start-stop-idler').classList.remove('disabled')
-    showAlert(`${running ? 'Stopped' : 'Started'} idler - ${name}`, 'success')
+    showAlert(`${running === 'true' ? 'Stopped' : 'Started'} idler - ${name}`, 'success')
   }).catch((e) => {
     console.log(e)
     page.querySelector('.start-stop-idler').classList.remove('disabled')
-    showAlert(`Failed to ${running ? 'stop' : 'start'} idler ${name} - ${e.replace(stripTags, ' ')}`, 'danger')
+    showAlert(`Failed to ${running === 'true' ? 'stop' : 'start'} idler ${name} - ${e.replace(stripTags, ' ')}`, 'danger')
   })
 }
 
@@ -305,22 +305,24 @@ async function updateLogs () {
     page.querySelector('.info-type .data').textContent = idler.attr.type
     page.querySelector('.holdingLogs').style.display = 'none'
 
-    const logArea = page.querySelector('.statusLog')
-    const logIndex = parseInt(logArea.getAttribute('data-index'))
+    if (idler.logs.length > 0) {
+      const logArea = page.querySelector('.statusLog')
+      const logIndex = parseInt(logArea.getAttribute('data-index') || 0)
+      for (let i = 0; i < idler.logs.length; i++) {
+        var item = idler.logs[i]
+        var output = item.status
+        if (item.index <= logIndex) {
+          continue
+        }
 
-    for (let i = logIndex; i < idler.logs.length; i++) {
-      var item = idler.logs[i]
-      var output = item.status
+        if (item.includedLink) {
+          output = output.replace(item.includedLink, `<a href='https://twitch.tv/${item.includedLink}' target='_blank'>${item.includedLink}</a>`)
+        }
 
-      if (item.includedLink) {
-        output = output.replace(item.includedLink, `<a href='https://twitch.tv/${item.includedLink}' target='_blank'>${item.includedLink}</a>`)
+        logArea.insertAdjacentHTML('afterbegin', `<p>${output}</p>`)
       }
 
-      logArea.insertAdjacentHTML('afterbegin', `<p>${output} </p>`)
-    }
-
-    if (idler.logs.length > 0) {
-      logArea.setAttribute('data-index', idler.logs.length)
+      logArea.setAttribute('data-index', idler.logindex)
     }
 
     page.querySelector('.start-stop-idler').setAttribute('data-running', idler.running.toString())
@@ -513,9 +515,9 @@ function showSpinner (show) {
 function lockForm (lock) {
   document.querySelectorAll(
     '#createEditIdler form input,' +
-        '#createEditIdler form textarea,' +
-        '#createEditIdler form select' +
-        '#deleteButton',
+    '#createEditIdler form textarea,' +
+    '#createEditIdler form select' +
+    '#deleteButton',
     '#saveButton'
   ).forEach(function (e) {
     if (lock) {

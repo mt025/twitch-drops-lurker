@@ -39,7 +39,7 @@ export class Idler {
 
     console.debug(`${timeStamp}: ${this.attr.name} - ${status}`)
     this.logs.push({
-      index: this.logindex++,
+      index: ++this.logindex,
       status: timeStamp + ': ' + status,
       includedLink
     })
@@ -52,6 +52,7 @@ export class Idler {
       // Stop it first if its already running
       if (this.page != null) this.stop()
       this.navigating = true
+
       // Refresh
       this.running = setInterval(async () => {
         // Not currently watching
