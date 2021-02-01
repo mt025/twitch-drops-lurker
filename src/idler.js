@@ -151,6 +151,7 @@ export class Idler {
     await this.page.evaluate(() => {
       // eslint-disable-next-line no-undef
       location.reload()
+      this.startTime = Date.now()
     })
   }
 
