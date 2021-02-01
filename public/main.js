@@ -183,13 +183,13 @@ function saveIdler(event) {
         }
     }).then(catchError)
         .then(res => res.text()).then((res) => {
-            showAlert("Added bot - " + botObj.name, "success");
+            showAlert("Added idler - " + botObj.name, "success");
             closeModal();
             //TODO - This a cheat
             window.location.reload();
         }).catch(res => {
             console.log(res);
-            showAlert("Failed to save bot - " + res.replace(stripTags, " "), "danger")
+            showAlert("Failed to save idler - " + res.replace(stripTags, " "), "danger")
 
         }).finally(() => {
             showSpinner(false);
@@ -238,11 +238,11 @@ function stopStartIdler(name) {
         method: 'POST'
     }).then(catchError).then(() => {
         page.querySelector(".start-stop-idler").classList.remove("disabled");
-        showAlert(`Stopped bot - ${name}`, "success")
+        showAlert(`${running ? "Stopped" : "Started" } idler - ${name}`, "success")
     }).catch((e) => {
         console.log(e);
         page.querySelector(".start-stop-idler").classList.remove("disabled");
-        showAlert(`Failed to start/stop bot ${name} - ${e.replace(stripTags, " ")}`, "danger")
+        showAlert(`Failed to ${running ? "stop" : "start" } idler ${name} - ${e.replace(stripTags, " ")}`, "danger")
     });
 
 }

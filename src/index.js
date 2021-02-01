@@ -159,6 +159,7 @@ main();
 
 async function main() {
 
+    //Find the chrome browser
     await searchForBrowser();
 
     //Populate accounts
@@ -169,7 +170,8 @@ async function main() {
 
     //Create idlers 
     await createIdlers();
-
+    
+    //Start the webserver
     startServer();
 }
 
