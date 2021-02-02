@@ -217,13 +217,14 @@ export class Idler {
     this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer)
 
     // Make sure we are on a valid streamer when the page loads
-    // TODO FIX
     this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
       // check we are on a vaild streamer
       this.isPageOnValidStreamer().then((isValid) => {
         if (!isValid) {
           // if we are not, go to next stream, and finish
           this.goToLiveStreamer().finally(() => { this.navigating = false })
+        } else {
+          this.navigating = false
         }
       })
     }).catch(() => {
