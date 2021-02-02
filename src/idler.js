@@ -56,7 +56,7 @@ export class Idler {
       // Refresh
       this.running = setInterval(async () => {
         // Not currently watching
-        if (this.currentStreamer == null) return
+        if (this.currentStreamer == null || this.navigating) return
 
         // Watch for live status, and go to another streamer if needed
         if (!(await this.isPageOnValidStreamer())) { await this.goToLiveStreamer(); return }
@@ -149,10 +149,10 @@ export class Idler {
   async hourReload () {
     if (this.currentStreamer == null || this.page == null) return
     this.updateStatus(`⚠️ ${this.currentStreamer} has been idled for more than 1 hour. Reloading page.`, this.currentStreamer)
+    this.startTime = Date.now()
     await this.page.evaluate(() => {
       // eslint-disable-next-line no-undef
       location.reload()
-      this.startTime = Date.now()
     })
   }
 
@@ -186,6 +186,7 @@ export class Idler {
       })
 
       // For some reason there is an issue with finding streamers, retry every second for 10 seconds until its found, then fail if non are found
+      // Maybe we should be using wait for selector
       let streamHrefs
       for (let i = 0; i < 10; i++) {
         streamHrefs = await this.page.$$eval('.tw-tower a[data-a-target="preview-card-image-link"]', links => links.map(link => link.href))
@@ -214,23 +215,30 @@ export class Idler {
     await this.page.goto(streamerLink)
 
     this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer)
-    await waitAsync(2000)
+
+    // Make sure we are on a valid streamer when the page loads
+    // TODO FIX
+    this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
+      // check we are on a vaild streamer
+      this.isPageOnValidStreamer().then((isValid) => {
+        if (!isValid) {
+          // if we are not, go to next stream, and finish
+          this.goToLiveStreamer().finally(() => { this.navigating = false })
+        }
+      })
+    }).catch(() => {
+      this.navigating = false
+    })
 
     // Sometimes it shows a click to unmute overlay. Investigate a better way to fix, maybe with cookies or localStorage
-    // TODO look into this
-    try {
-      await this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]')
-    } catch (e) {
-      console.log('failed to click')
-    }
-    this.navigating = false
+    // TODO look into this we should use waitForSelector
+    waitAsync(2000).then(() => { this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]').catch(() => { console.log('failed to click player') }) })
   }
 
   async isPageOnValidStreamer () {
-    if (this.page == null) {
-      return
+    if (this.page == null || !this.currentStreamer) {
+      return false
     }
-    if (!this.currentStreamer) { return false } // We're currently navigating to a streamer, so no
 
     const liveIndicatorElm = await this.page.$('[data-a-target="watch-mode-to-home"] .live-indicator-container')
     if (!liveIndicatorElm) {
