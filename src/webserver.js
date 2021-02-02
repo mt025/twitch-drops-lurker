@@ -144,6 +144,22 @@ export function startServer () {
     }
   })
 
+  app.post('/:username/refresh', (req, res) => {
+    try {
+      const idler = getIdlersByName(req.params.username).value
+      if (idler.navigating) {
+        throw 'Currently navigating. Please wait until the current page has loaded.'
+      }
+      idler.page.evaluate(() => {
+        // eslint-disable-next-line no-undef
+        location.reload()
+      })
+      res.status(200).send('ok')
+    } catch (e) {
+      res.status(500).send(e)
+    }
+  })
+
   app.get('/:username/screenshot', async function (req, res) {
     try {
       const idler = getIdlersByName(req.params.username).value

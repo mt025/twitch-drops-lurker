@@ -70,6 +70,12 @@ function createNewTab (idler) {
   tabPage.querySelector('.refresh-logs-screenshot').addEventListener('click', () => {
     updateLogs()
     updateImage()
+    fetch(`${name}/refresh`, {
+      method: 'POST'
+    }).then(catchError).catch((e) => {
+      console.log(e)
+      showAlert('Failed to refresh page - ' + e.replace(stripTags, ' '), 'danger')
+    })
   })
 
   // Update page info
