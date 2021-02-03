@@ -221,20 +221,25 @@ export class Idler {
       this.updateStatus(`✨ Started watching ${this.currentStreamer} (${count + 1}/${this.attr.streamerList.length})`, this.currentStreamer)
     }
 
+    // If the streamer list is not set, or the streamer list is greater than 5, then go ahead and check right away
+    if (this.attr.streamerList == null || this.attr.streamerList.length >= 5) {
     // Make sure we are on a valid streamer when the page loads
-    this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
+      this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
       // check we are on a vaild streamer
-      this.isPageOnValidStreamer().then((isValid) => {
-        if (!isValid) {
+        this.isPageOnValidStreamer().then((isValid) => {
+          if (!isValid) {
           // if we are not, go to next stream, and finish
-          this.goToLiveStreamer().catch(() => { this.navigating = false })
-        } else {
-          this.navigating = false
-        }
+            this.goToLiveStreamer().catch(() => { this.navigating = false })
+          } else {
+            this.navigating = false
+          }
+        })
+      }).catch(() => {
+        this.navigating = false
       })
-    }).catch(() => {
+    } else {
       this.navigating = false
-    })
+    }
 
     // Sometimes it shows a click to unmute overlay. Investigate a better way to fix, maybe with cookies or localStorage
     // TODO look into this we should use waitForSelector
