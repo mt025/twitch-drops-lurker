@@ -107,9 +107,9 @@ export function startServer () {
   app.post('/:username/stop', (req, res) => {
     try {
       const idler = getIdlersByName(req.params.username).value
-      if (idler.navigating) {
-        throw 'Currently navigating. Please wait until the current page has loaded.'
-      }
+      // if (idler.navigating) {
+      //  throw 'Currently navigating. Please wait until the current page has loaded.'
+      // }
       idler.stop()
 
       res.status(200).send('ok')
