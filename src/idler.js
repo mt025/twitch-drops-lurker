@@ -56,7 +56,7 @@ export class Idler {
       // Refresh
       this.running = setInterval(async () => {
         // Not currently watching
-        if (this.currentStreamer == null || this.navigating) return
+        if (this.navigating) return
 
         // Watch for live status, and go to another streamer if needed
         if (!(await this.isPageOnValidStreamer())) { await this.goToLiveStreamer(); return }
@@ -198,6 +198,7 @@ export class Idler {
 
       if (!streamHrefs.length) {
         this.updateStatus('😥 No live streams found!')
+        this.navigating = false
         return
       }
 
