@@ -222,7 +222,7 @@ export class Idler {
       this.isPageOnValidStreamer().then((isValid) => {
         if (!isValid) {
           // if we are not, go to next stream, and finish
-          this.goToLiveStreamer().finally(() => { this.navigating = false })
+          this.goToLiveStreamer().catch(() => { this.navigating = false })
         } else {
           this.navigating = false
         }
