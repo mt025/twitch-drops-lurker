@@ -203,18 +203,22 @@ export class Idler {
 
       streamerLink = streamHrefs[Math.floor(Math.random() * streamHrefs.length)]
       this.currentStreamer = streamerLink.split('/').pop()
+
+      this.startTime = Date.now()
+      await this.page.goto(streamerLink)
+
+      this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer)
     } else {
       // We are using a streamer link list
       const count = this.currentStreamerListIndex++ % this.attr.streamerList.length
       this.currentStreamer = this.attr.streamerList[count]
       streamerLink = `https://twitch.tv/${this.currentStreamer}`
+
+      this.startTime = Date.now()
+      await this.page.goto(streamerLink)
+
+      this.updateStatus(`✨ Started watching ${this.currentStreamer} (${count + 1}/${this.attr.streamerList.length})`, this.currentStreamer)
     }
-
-    this.startTime = Date.now()
-
-    await this.page.goto(streamerLink)
-
-    this.updateStatus(`✨ Started watching ${this.currentStreamer}`, this.currentStreamer)
 
     // Make sure we are on a valid streamer when the page loads
     this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
