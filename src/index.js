@@ -133,9 +133,10 @@ async function createIdlers () {
 async function keepIdlersAlive () {
   while (true) {
     for (let i = 0; i < idlers.length; i++) {
+      if (!idlers[i].running) continue
       try {
         await idlers[i].keepAlive()
-      } catch (e) { }
+      } catch (e) {}
       await waitAsync(10000)
     }
     await waitAsync(1000)
