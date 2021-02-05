@@ -257,8 +257,10 @@ export class Idler {
       return false
     }
 
-    // TODO Catch eval errors
     if (this.attr.game) {
+      await this.page.waitForSelector('[data-a-target="stream-game-link"]').catch(() => {
+        this.updateStatus(`⚠️ Failed to read game status for ${this.currentStreamer}`, this.currentStreamer)
+      })
       const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.textContent.toLowerCase().trim())
       if (!gameCategoryHref || gameCategoryHref !== this.attr.game.toLowerCase()) {
         this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.attr.game}`, this.currentStreamer)
