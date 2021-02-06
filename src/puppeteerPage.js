@@ -88,6 +88,7 @@ export async function preparePage (idler) {
       // Override important values
       window.localStorage.setItem('mature', 'true')
       window.localStorage.setItem('video-quality', '{"default":"160p30"}')
+      window.localStorage.setItem('video-muted', '{"default":false,"carousel":false}')
     }, [JSON.stringify(savedLocalStorage)])
   } catch (e) {
     throw new Error(`Failed to set localstorage:  ${e.message}`)
