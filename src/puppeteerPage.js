@@ -88,6 +88,9 @@ export async function preparePage (idler) {
       // Override important values
       window.localStorage.setItem('mature', 'true')
       window.localStorage.setItem('video-quality', '{"default":"160p30"}')
+      window.localStorage.setItem('browseAllCategoriedPageSort', '"VIEWER_COUNT"')
+      window.localStorage.setItem('browseAllCategoriedPageSort', '"VIEWER_COUNT"')
+      window.localStorage.setItem('directoryGameChannelPageSort', '"VIEWER_COUNT"')
       window.localStorage.setItem('video-muted', '{"default":false,"carousel":false}')
     }, [JSON.stringify(savedLocalStorage)])
   } catch (e) {
