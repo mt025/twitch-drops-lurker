@@ -31,8 +31,9 @@ export function askQuestion (query) {
 export const chromePaths = {
 
   win32: [
-    '%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe',
-    '%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    // TODO for some reason vars are not expanding
     '%LocalAppData%\\Google\\Chrome\\Application\\chrome.exe'
   ],
   unix: [
