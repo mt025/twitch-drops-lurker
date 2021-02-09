@@ -261,12 +261,10 @@ export class Idler {
 
       }
     }
-
     // Sometimes it shows a click to unmute overlay. Investigate a better way to fix, maybe with cookies or localStorage
-    // TODO look into this we should use waitForSelector
-    waitAsync(2000).then(() => {
-      this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]').catch(() => { console.log('failed to click player') })
-    })
+    this.page.waitForSelector('[data-a-target="player-overlay-click-handler"]').then(() => {
+      this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]').catch(() => {})
+    }).catch(() => {})
   }
 
   async isPageOnValidStreamer () {
@@ -281,11 +279,13 @@ export class Idler {
     }
 
     if (this.attr.game) {
-      await this.page.waitForSelector('[data-a-target="stream-game-link"]').catch(() => {
-        this.updateStatus(`⚠️ Failed to read game status for ${this.currentStreamer}`, this.currentStreamer)
-      })
-      const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.textContent.toLowerCase().trim())
-      if (!gameCategoryHref || gameCategoryHref !== this.attr.game.toLowerCase()) {
+      try {
+        await this.page.waitForSelector('[data-a-target="stream-game-link"]')
+        const gameCategoryHref = await this.page.$eval('[data-a-target="stream-game-link"]', elm => elm.textContent.toLowerCase().trim())
+        if (!gameCategoryHref || gameCategoryHref !== this.attr.game.toLowerCase()) {
+          throw new Error()
+        }
+      } catch (e) {
         this.updateStatus(`⚠️ ${this.currentStreamer} is no longer playing ${this.attr.game}`, this.currentStreamer)
         return false
       }
@@ -305,7 +305,7 @@ export class Idler {
     }
 
     if (this.page.url().toLowerCase().indexOf(this.currentStreamer.toLowerCase()) === -1) {
-      this.updateStatus(`⚠️ ${this.currentStreamer} is no longer active. Page redirected to ${this.page.url()}`, this.currentStreamer)
+      this.updateStatus(`⚠️ ${this.currentStreamer} is no longer active. Page has redirected to ${this.page.url()}`, this.currentStreamer)
       return false
     }
 
