@@ -304,6 +304,11 @@ export class Idler {
       return false
     }
 
+    if (this.page.url().toLowerCase().indexOf(this.currentStreamer.toLowerCase()) === -1) {
+      this.updateStatus(`⚠️ ${this.currentStreamer} is no longer active. Page redirected to ${this.page.url()}`, this.currentStreamer)
+      return false
+    }
+
     return true
   }
 }
