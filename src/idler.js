@@ -11,6 +11,7 @@ export class Idler {
     // streamerList
     // autostart
     // channelPoints
+    // hideVideo
     this.attr = {}
 
     // vars
@@ -222,7 +223,7 @@ export class Idler {
     }
 
     // If the streamer list is not set, or the streamer list is greater than 5, then go ahead and check right away
-    if (this.attr.streamerList == null || this.attr.streamerList.length >= 5) {
+    if (this.attr.streamerList == null || this.attr.streamerList.length >= 10) {
     // Make sure we are on a valid streamer when the page loads
       this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
       // check we are on a vaild streamer
@@ -241,9 +242,31 @@ export class Idler {
       this.navigating = false
     }
 
+    if (this.attr.hideVideo) {
+      try {
+        await this.page.waitForSelector('video')
+
+        await this.page.evaluate(() => {
+        // eslint-disable-next-line no-undef
+          document.querySelector('video').remove()
+        })
+
+        await this.page.waitForSelector('[data-a-target="player-overlay-play-button"]')
+
+        await this.page.evaluate(() => {
+        // eslint-disable-next-line no-undef
+          document.querySelector("[data-a-target='player-overlay-play-button']").click()
+        })
+      } catch (e) {
+
+      }
+    }
+
     // Sometimes it shows a click to unmute overlay. Investigate a better way to fix, maybe with cookies or localStorage
     // TODO look into this we should use waitForSelector
-    waitAsync(2000).then(() => { this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]').catch(() => { console.log('failed to click player') }) })
+    waitAsync(2000).then(() => {
+      this.emulateClickAsync('[data-a-target="player-overlay-click-handler"]').catch(() => { console.log('failed to click player') })
+    })
   }
 
   async isPageOnValidStreamer () {

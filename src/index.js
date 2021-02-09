@@ -114,6 +114,7 @@ async function createIdlers () {
     template.streamerList = null
     template.autostart = false
     template.channelPoints = false
+    template.hideVideo = false
 
     const attrObj = {}
     attrObj.attr = Object.assign(template, idler)
