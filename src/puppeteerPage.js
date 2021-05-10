@@ -17,6 +17,7 @@ const chromeArgs = [
   '--proxy-bypass-list=*', // Disable Proxy Servers, can cause headless time to increase
   '--no-proxy-server', // Disable Proxy Servers, can cause headless time to increase
   // TODO make this an option to user'--blink-settings=imagesEnabled=false', // Disable Images,
+  '--blink-settings=imagesEnabled=false',
   '--no-sandbox', // Disable sandboxing
   '--disable-setuid-sandbox', // Disables setuid sandbox
   '--no-zygote', // Disable zygote sandbox
@@ -67,6 +68,7 @@ export async function preparePage (idler) {
 
   // Setup page
   idler.page = await browser.newPage()
+  await idler.page.setDefaultNavigationTimeout(0)
   await idler.page.setUserAgent('Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.197 Safari/537.36')
 
   // Setup cookies

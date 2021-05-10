@@ -54,28 +54,31 @@ export class Idler {
       if (this.page != null) this.stop()
       this.navigating = true
 
-      // Refresh
-      this.running = setInterval(async () => {
-        // Not currently watching
-        if (this.navigating) return
+      // Setup Page check
+      this.running = setInterval(function () { this.validateStreamAndNavigate() }.bind(this), 1000 * settings.CHECK_TIME_IN_SECONDS)
 
-        // Watch for live status, and go to another streamer if needed
-        if (!(await this.isPageOnValidStreamer())) { await this.goToLiveStreamer(); return }
-
-        // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
-        if (!((Date.now() - this.startTime) < 1000 * 60 * 60)) { await this.hourReload(); return }
-
-        // Claim channel points
-        if (this.attr.channelPoints) { await this.claimChannelPoints() }
-      }, 1000 * settings.CHECK_TIME_IN_SECONDS)
+      this.updateStatus('💬 Starting idler...')
 
       // Prepare the page
       await preparePage(this)
 
+      // Watch for page error/crash
+      this.page.on('error', err => { this.updateStatus(`❌ Idler Error, restarting - ${err.message}`); this.start() })
+
+      // Watch for page change to VOD
+      this.page.on('framenavigated',
+        async (frame) => {
+          if (this.page.url().toLowerCase().indexOf('https://www.twitch.tv/videos/') !== -1) {
+            this.updateStatus('🛑 VOD is playing, blanking page...')
+            await this.page.goto('about:blank')
+          }
+        }
+      )
+
+      this.updateStatus('✔️ Idler ready')
+
       // Go to streamer
       await this.goToLiveStreamer()
-
-      this.updateStatus('✔️ Started idler')
     } catch (e) {
       clearInterval(this.running)
       this.running = null
@@ -157,6 +160,20 @@ export class Idler {
     })
   }
 
+  async validateStreamAndNavigate () {
+  // Not currently navigating
+    if (this.navigating) return
+
+    // Watch for live status, and go to another streamer if needed
+    if (!(await this.isPageOnValidStreamer())) { await this.goToLiveStreamer(); return }
+
+    // Reload page every hour to avoid watching X streamer status going away if the user navigates twitch
+    if (!((Date.now() - this.startTime) < 1000 * 60 * 60)) { await this.hourReload(); return }
+
+    // Claim channel points
+    if (this.attr.channelPoints) { await this.claimChannelPoints() }
+  }
+
   async goToLiveStreamer () {
     if (this.page == null) return
 
@@ -223,24 +240,16 @@ export class Idler {
     }
 
     // If the streamer list is not set, or the streamer list is greater than 5, then go ahead and check right away
-    if (this.attr.streamerList == null || this.attr.streamerList.length >= 20) {
+    // TODO (Issue to fix, what should be do if all streamers are offline, we don't want to be going around in circles, but also we dont want to sit on a streamer incase other are online)
+
+    // if (this.attr.streamerList == null || this.attr.streamerList.length >= 20) {
     // Make sure we are on a valid streamer when the page loads
-      this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
-      // check we are on a vaild streamer
-        this.isPageOnValidStreamer().then((isValid) => {
-          if (!isValid) {
-          // if we are not, go to next stream, and finish
-            this.goToLiveStreamer().catch(() => { this.navigating = false })
-          } else {
-            this.navigating = false
-          }
-        })
-      }).catch(() => {
-        this.navigating = false
-      })
-    } else {
-      this.navigating = false
-    }
+    // this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(async () => {
+    // await this.validateStreamAndNavigate()
+    // })
+    // } else {
+    this.navigating = false
+    // }
 
     if (this.attr.hideVideo) {
       try {
@@ -269,6 +278,12 @@ export class Idler {
 
   async isPageOnValidStreamer () {
     if (this.page == null || !this.currentStreamer) {
+      return false
+    }
+
+    const pageURL = this.page.url()
+    if (pageURL.toLowerCase().indexOf(this.currentStreamer.toLowerCase()) === -1) {
+      this.updateStatus(`⚠️ ${this.currentStreamer} is no longer active. Page has redirected to ${pageURL}`, this.currentStreamer)
       return false
     }
 
@@ -301,11 +316,6 @@ export class Idler {
 
     if (!dropsEnabled) {
       this.updateStatus(`⚠️ ${this.currentStreamer} is no longer having drops for ${this.attr.game}`, this.currentStreamer)
-      return false
-    }
-
-    if (this.page.url().toLowerCase().indexOf(this.currentStreamer.toLowerCase()) === -1) {
-      this.updateStatus(`⚠️ ${this.currentStreamer} is no longer active. Page has redirected to ${this.page.url()}`, this.currentStreamer)
       return false
     }
 
