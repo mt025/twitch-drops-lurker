@@ -6,3 +6,4 @@ package-lock.json
 users.json
 /bin
 .chromelocation
+/log

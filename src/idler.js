@@ -67,7 +67,7 @@ export class Idler {
 
         // Claim channel points
         if (this.attr.channelPoints) { await this.claimChannelPoints() }
-      }, 1000 * 60)
+      }, 1000 * settings.CHECK_TIME_IN_SECONDS)
 
       // Prepare the page
       await preparePage(this)
@@ -223,7 +223,7 @@ export class Idler {
     }
 
     // If the streamer list is not set, or the streamer list is greater than 5, then go ahead and check right away
-    if (this.attr.streamerList == null || this.attr.streamerList.length >= 10) {
+    if (this.attr.streamerList == null || this.attr.streamerList.length >= 20) {
     // Make sure we are on a valid streamer when the page loads
       this.page.waitForSelector('.home-header-sticky .user-avatar-animated, [data-a-target="watch-mode-to-home"]').then(() => {
       // check we are on a vaild streamer

@@ -9,7 +9,8 @@ import { platform } from 'os'
 export const settings = {
   VIEWPORT_WIDTH: 1080,
   VIEWPORT_HEIGHT: 792,
-  DROPS_ENABLED_TAGID: 'c2542d6d-cd10-4532-919b-3d19f30a768b'
+  DROPS_ENABLED_TAGID: 'c2542d6d-cd10-4532-919b-3d19f30a768b',
+  CHECK_TIME_IN_SECONDS: 5 * 60
 }
 
 async function searchForBrowser () {
